@@ -1,7 +1,7 @@
 import { ThemeProvider } from '@mui/material'
 import './App.css'
 import Theme from './theme/theme'
-import { RouterProvider } from 'react-router'
+import { RouterProvider } from 'react-router-dom'
 import { router } from './routes/Rroutes'
 
 

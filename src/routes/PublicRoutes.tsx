@@ -1,9 +1,11 @@
 import { useSelector } from 'react-redux'
-import { Navigate, Outlet } from 'react-router';
+import { Navigate, Outlet } from 'react-router-dom';
+import type { RootState } from '../redux/store';
 
 const PublicRoutes = () => {
-    const isAuthenticated = useSelector((state: any) => state.user.isAuthenticated);
-    return isAuthenticated ? <Navigate to="/dashboard" replace /> : <Outlet />
+const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated
+);    return isAuthenticated ? <Navigate to="/dashboard" replace /> : <Outlet />
 }
 
 export default PublicRoutes
