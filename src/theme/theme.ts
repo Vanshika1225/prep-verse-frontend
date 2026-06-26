@@ -7,7 +7,7 @@ declare module '@mui/material/Button' {
     }
 }
 
-const pxToRem = (px: any) => `${px / 16}rem`;
+const pxToRem = (px: number) => `${px / 16}rem`;
 
 const colors = {
     primary: {
@@ -61,7 +61,7 @@ const buttonColors: any = {
     primary: colors.primary.main,
 }
 
-const createVariant = (variant: any, fontSize: any, fontWeight: any, smallFontSize: any) => {
+const createVariant = (variant: any, fontSize: number, fontWeight: number, smallFontSize: number | null) => {
     const fontFamily = '"Poppins", sans-serif'
 
     return {
@@ -234,8 +234,7 @@ const Theme = createTheme({
                 {
                     props: { variant: 'contained' },
                     style: ({ ownerState }: any) => {
-                        const colorKey = ownerState.color || 'primary'
-                        const colorValue = buttonColors[colorKey] || colors.primary.main
+                        const colorValue = colors.primary.main;
 
                         return {
                             backgroundColor: colorValue,
