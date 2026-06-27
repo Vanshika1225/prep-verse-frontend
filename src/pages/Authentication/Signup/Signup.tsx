@@ -1,9 +1,12 @@
-import React from 'react'
+import Logo from "@components/Logo";
+import { Box } from "@mui/material";
 
 const Signup = () => {
   return (
-    <div>Signup</div>
-  )
-}
+    <Box>
+      <Logo />
+    </Box>
+  );
+};
 
-export default Signup
+export default Signup;

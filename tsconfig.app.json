@@ -16,6 +16,13 @@
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
 
+    "paths": {
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@assets/*": ["./src/assets/*"],
+      "@redux/*": ["./src/redux/*"],
+      "@utils/*": ["./src/utils/*"]
+    },
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
