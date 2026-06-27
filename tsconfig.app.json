@@ -1,25 +1,46 @@
 {
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-    "target": "es2023",
-    "lib": ["ES2023", "DOM"],
-    "module": "esnext",
-    "types": ["vite/client"],
-    "skipLibCheck": true,
 
-    /* Bundler mode */
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+
+    "module": "ESNext",
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
     "moduleDetection": "force",
-    "noEmit": true,
+
     "jsx": "react-jsx",
 
-    /* Linting */
+    "types": ["vite/client"],
+
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "exactOptionalPropertyTypes": true,
+    "useUnknownInCatchVariables": true,
+
+    "isolatedModules": true,
+
+    "skipLibCheck": true,
+    "noEmit": true,
+
+    "erasableSyntaxOnly": true
   },
+
   "include": ["src"]
 }
