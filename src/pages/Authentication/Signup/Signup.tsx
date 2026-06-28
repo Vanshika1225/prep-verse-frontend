@@ -14,6 +14,8 @@ import { useNavigate } from "react-router-dom";
 
 import { styles } from "./style";
 
+import { useSignupMutation, type SignupRequest } from "@/services/authApi";
+
 const PasswordRule = ({ valid, text }: { valid: boolean; text: string }) => {
   const theme = useTheme();
 
@@ -43,6 +45,7 @@ const PasswordRule = ({ valid, text }: { valid: boolean; text: string }) => {
 const SignupForm = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const [signup, { isLoading }] = useSignupMutation();
 
   const {
     control,
@@ -50,7 +53,7 @@ const SignupForm = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      username: "",
+      name: "",
       email: "",
       password: "",
     },
@@ -69,8 +72,14 @@ const SignupForm = () => {
     number: /\d/.test(password),
   };
 
-  const onSubmit = (data: object) => {
-    console.warn("Signup", data);
+  const onSubmit = async (data:SignupRequest) => {
+    try {
+      const response = await signup(data).unwrap();
+      localStorage.setItem("token", response.token);
+      await navigate("/login");
+    } catch (err: unknown) {
+      console.error(err);
+    }
   };
 
   return (
@@ -98,7 +107,7 @@ const SignupForm = () => {
           <Box sx={styles.formField}>
             <Typography variant="body-medium">Full Name</Typography>
             <Controller
-              name="username"
+              name="name"
               control={control}
               rules={{
                 required: "Full Name is required",
@@ -108,8 +117,8 @@ const SignupForm = () => {
                   {...field}
                   fullWidth
                   placeholder="Enter your full name"
-                  error={!!errors.username}
-                  helperText={errors.username?.message}
+                  error={!!errors.name}
+                  helperText={errors.name?.message}
                 />
               )}
             />
