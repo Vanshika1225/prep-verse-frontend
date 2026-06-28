@@ -72,7 +72,7 @@ const SignupForm = () => {
     number: /\d/.test(password),
   };
 
-  const onSubmit = async (data:SignupRequest) => {
+  const onSubmit = async (data: SignupRequest) => {
     try {
       const response = await signup(data).unwrap();
       localStorage.setItem("token", response.token);
@@ -201,7 +201,7 @@ const SignupForm = () => {
             size="small"
             sx={{ mt: 2, fontWeight: "bold", fontSize: "14px", mb: 2 }}
           >
-            Sign Up
+            {isLoading ? "Signing in..." : "Sign Up"}
           </Button>
         </form>
 

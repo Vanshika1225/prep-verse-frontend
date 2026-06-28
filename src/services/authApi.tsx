@@ -1,5 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
+import { onMutationStartedDefault } from "@/utils/serviceUtility";
+
 export interface SignupRequest {
   name: string;
   email: string;
@@ -45,6 +47,7 @@ export const authApi = createApi({
         method: "POST",
         body,
       }),
+      onQueryStarted: onMutationStartedDefault,
     }),
   }),
 });
