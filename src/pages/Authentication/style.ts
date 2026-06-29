@@ -54,6 +54,7 @@ export const styles = {
     justifyContent: "space-evenly",
     gap: { xs: 6, lg: 10 },
     flexDirection: { xs: "column", md: "row" },
+    maxHeight:"100vh",
   },
 
   basicStyles: {
