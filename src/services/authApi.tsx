@@ -8,14 +8,24 @@ export interface SignupRequest {
   password: string;
 }
 
+export interface LoginRequest {
+  email: string;
+  password: string;
+  rememberMe: boolean;
+}
+
 export interface AuthResponse {
   success: boolean;
   message: string;
-  token: string;
-  user: {
-    id: string;
-    username: string;
-    email: string;
+  data: {
+    accessToken: string;
+    refreshToken: string;
+    user: {
+      _id: string;
+      name: string;
+      email: string;
+      role: string;
+    };
   };
 }
 
@@ -28,7 +38,7 @@ export const authApi = createApi({
     baseUrl: apiUrl,
 
     prepareHeaders: (headers) => {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("accessToken");
 
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
@@ -49,7 +59,15 @@ export const authApi = createApi({
       }),
       onQueryStarted: onMutationStartedDefault,
     }),
+    login: builder.mutation<AuthResponse, LoginRequest>({
+      query: (body) => ({
+        url: "/api/auth/login",
+        method: "POST",
+        body,
+      }),
+      onQueryStarted: onMutationStartedDefault,
+    }),
   }),
 });
 
-export const { useSignupMutation } = authApi;
+export const { useSignupMutation, useLoginMutation } = authApi;

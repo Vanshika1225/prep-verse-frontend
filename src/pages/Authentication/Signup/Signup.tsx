@@ -1,18 +1,23 @@
 import SignUpIntroImage from "@assets/signup-intro-image.png";
 import Logo from "@components/Logo";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import {
   Box,
   Button,
   Card,
+  IconButton,
+  InputAdornment,
   TextField,
   Typography,
   useTheme,
 } from "@mui/material";
+import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
-import { styles } from "./style";
+import { styles } from "../style";
 
 import { useSignupMutation, type SignupRequest } from "@/services/authApi";
 
@@ -45,6 +50,10 @@ const PasswordRule = ({ valid, text }: { valid: boolean; text: string }) => {
 const SignupForm = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+
+  const [pwd, setPwd] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+
   const [signup, { isLoading }] = useSignupMutation();
 
   const {
@@ -75,10 +84,12 @@ const SignupForm = () => {
   const onSubmit = async (data: SignupRequest) => {
     try {
       const response = await signup(data).unwrap();
-      localStorage.setItem("token", response.token);
-      await navigate("/login");
-    } catch (err: unknown) {
-      console.error(err);
+
+      if (response.success) {
+        await navigate("/login");
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -165,9 +176,26 @@ const SignupForm = () => {
                 <TextField
                   {...field}
                   fullWidth
+                  value={pwd}
+                  onChange={(e) => setPwd(e.target.value)}
+                  type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   error={!!errors.password}
                   helperText={errors.password?.message}
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowPassword(!showPassword)}
+                            edge="end"
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
                 />
               )}
             />
@@ -212,6 +240,7 @@ const SignupForm = () => {
           Already have an account?
           <Button
             variant="borderless"
+            disabled={isLoading}
             onClick={() => void navigate("/login")}
             sx={styles.alreadyHaveAcount}
           >
