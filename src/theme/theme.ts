@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createTheme, darken } from "@mui/material";
+import { alpha, createTheme, darken } from "@mui/material";
 
 declare module "@mui/material/Button" {
   interface ButtonPropsVariantOverrides {
@@ -49,7 +49,7 @@ const colors = {
 
   white: {
     main: "#FFFFFF",
-    light: "#FAFAFA",
+    light: "#faf9f9aa",
   },
 
   black: {
@@ -251,9 +251,39 @@ const Theme = createTheme({
               backgroundColor: colorValue,
               color: colors.white.main,
               border: "1px solid transparent",
-              ":hover": {
-                backgroundColor: darken(colorValue, 0.1),
+              transition: "all 0.2s ease",
+
+              "&:hover": {
+                backgroundColor: darken(colorValue, 0.08),
                 border: "1px solid transparent",
+                boxShadow: "0 6px 16px rgba(109,78,255,0.25)",
+                transform: "translateY(-1px)",
+              },
+
+              "&:active": {
+                transform: "translateY(0)",
+              },
+            };
+          },
+        },
+        {
+          props: { variant: "outlined" },
+          style: ({ ownerState }: any) => {
+            const colorKey = ownerState.color || "primary";
+            const colorValue = buttonColors[colorKey] || colors.primary.main;
+
+            return {
+              backgroundColor: "transparent",
+              color: colors.primary.dark,
+              border: `1px solid ${colorValue}`,
+              transition: "all 0.2s ease",
+
+              "&:active": {
+                backgroundColor: alpha(colorValue, 0.12),
+              },
+
+              "&:focus": {
+                border: `1px solid ${colorValue}`,
               },
             };
           },
@@ -269,7 +299,8 @@ const Theme = createTheme({
               color: colorValue,
               border: `1px solid ${colorValue}`,
               ":hover": {
-                backgroundColor: colors.primary.main,
+                backgroundColor: colors.white.light,
+                color: colors.primary.main,
                 border: `1px solid ${colorValue}`,
               },
               ":focus": {

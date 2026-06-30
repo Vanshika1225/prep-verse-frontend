@@ -51,7 +51,6 @@ const SignupForm = () => {
   const theme = useTheme();
   const navigate = useNavigate();
 
-  const [pwd, setPwd] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const [signup, { isLoading }] = useSignupMutation();
@@ -176,8 +175,6 @@ const SignupForm = () => {
                 <TextField
                   {...field}
                   fullWidth
-                  value={pwd}
-                  onChange={(e) => setPwd(e.target.value)}
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   error={!!errors.password}
@@ -187,7 +184,7 @@ const SignupForm = () => {
                       endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
-                            onClick={() => setShowPassword(!showPassword)}
+                            onClick={() => setShowPassword((prev) => !prev)}
                             edge="end"
                           >
                             {showPassword ? <VisibilityOff /> : <Visibility />}
