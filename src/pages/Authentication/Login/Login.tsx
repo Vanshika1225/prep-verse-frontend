@@ -1,8 +1,8 @@
 import LoginIntroImage from "@assets/login-intro-image.png";
 import Logo from "@components/Logo";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import {
   Box,
   Button,
@@ -28,7 +28,6 @@ const LoginForm = () => {
   const theme = useTheme();
   const navigate = useNavigate();
 
-  const [pwd, setPwd] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const [login, { isLoading }] = useLoginMutation();
@@ -123,8 +122,6 @@ const LoginForm = () => {
                 <TextField
                   {...field}
                   fullWidth
-                  value={pwd}
-                  onChange={(e) => setPwd(e.target.value)}
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   error={!!errors.password}
@@ -134,7 +131,7 @@ const LoginForm = () => {
                       endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
-                            onClick={() => setShowPassword(!showPassword)}
+                            onClick={() => setShowPassword((prev) => !prev)}
                             edge="end"
                           >
                             {showPassword ? <VisibilityOff /> : <Visibility />}
