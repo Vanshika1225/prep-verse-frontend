@@ -1,5 +1,5 @@
 import FloatingAlerts from "@components/FloatingAlerts";
-import { ThemeProvider } from "@mui/material";
+import { CssBaseline, ThemeProvider } from "@mui/material";
 import "./App.css";
 import { RouterProvider } from "react-router-dom";
 
@@ -8,10 +8,11 @@ import Theme from "./theme/theme";
 
 function App() {
   return (
-      <ThemeProvider theme={Theme}>
-        <RouterProvider router={router} />
-        <FloatingAlerts />
-      </ThemeProvider>
+    <ThemeProvider theme={Theme}>
+      <CssBaseline />
+      <RouterProvider router={router} />
+      <FloatingAlerts />
+    </ThemeProvider>
   );
 }
 

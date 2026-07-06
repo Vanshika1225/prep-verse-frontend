@@ -4,10 +4,20 @@ declare module "@mui/material/styles" {
   interface Palette {
     black: {
       main: string;
-      main100:string,
+      main100: string;
       secondary: string;
     };
     white: {
+      main: string;
+      light: string;
+    };
+    sidebar: {
+      main: string;
+      main100: string;
+      hover: string;
+      active: string;
+    };
+    error: {
       main: string;
       light: string;
     };
@@ -16,10 +26,20 @@ declare module "@mui/material/styles" {
   interface PaletteOptions {
     black?: {
       main: string;
-      main100:string;
+      main100: string;
       secondary: string;
     };
     white?: {
+      main: string;
+      light: string;
+    };
+    sidebar?: {
+      main: string;
+      main100: string;
+      hover: string;
+      active: string;
+    };
+    error: {
       main: string;
       light: string;
     };

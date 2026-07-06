@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 
-import Navbar from "@/layouts/Navbar";
+import Navbar from "@/layouts/Navbar/Navbar";
 
 const Home = () => {
   return (

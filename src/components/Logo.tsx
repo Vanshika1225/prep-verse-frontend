@@ -5,17 +5,17 @@ import logo from "../assets/logo.png";
 
 interface LogoProps {
   size?: number;
-  showText?: boolean;
+  color?: string;
 }
 
-const Logo = ({ size = 45}: LogoProps) => {
+const Logo = ({ size = 45, color = "primary.main" }: LogoProps) => {
   return (
     <Link
       to="/"
       style={{ textDecoration: "none", display: "flex", alignItems: "center" }}
     >
       <img src={logo} alt="PrepVerse" width={size} height={size} />
-      <Typography variant="h6" color="primary.main" sx={{ fontWeight: "bold" }}>
+      <Typography variant="h6" sx={{ fontWeight: "bold", color: { color } }}>
         PrepVerse
       </Typography>
     </Link>
