@@ -45,6 +45,7 @@ const colors = {
     main: "#0F172A",
     hover: "#1E293B",
     active: "#6D4AFF",
+    main100:"#172033",
   },
 
   white: {
@@ -103,9 +104,36 @@ const Theme = createTheme({
         body: {
           backgroundColor: colors.white.main,
           fontFamily: '"Poppins", sans-serif',
+          scrollbarWidth: "thin", // Firefox
+          scrollbarColor: "#7B7F87 transparent",
         },
+
         "*": {
           fontFamily: '"Poppins", sans-serif !important',
+          scrollbarWidth: "thin",
+          scrollbarColor: "#7B7F87 transparent",
+        },
+
+        /* Chrome / Edge / Safari */
+        "*::-webkit-scrollbar": {
+          width: "2px",
+          height: "2px",
+        },
+
+        "*::-webkit-scrollbar-track": {
+          background: "transparent",
+        },
+
+        "*::-webkit-scrollbar-corner": {
+          background: "transparent",
+        },
+        "*::-webkit-scrollbar-thumb": {
+          backgroundColor: "rgba(123,127,135,0.45)",
+          borderRadius: "999px",
+        },
+
+        "*::-webkit-scrollbar-thumb:hover": {
+          backgroundColor: "rgba(123,127,135,0.8)",
         },
       },
     },
