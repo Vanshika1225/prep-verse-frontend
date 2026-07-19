@@ -10,6 +10,8 @@ declare module "@mui/material/styles" {
     white: {
       main: string;
       light: string;
+      main100: string;
+      main200: string;
     };
     sidebar: {
       main: string;
@@ -32,6 +34,8 @@ declare module "@mui/material/styles" {
     white?: {
       main: string;
       light: string;
+      main100: string;
+      main200: string;
     };
     sidebar?: {
       main: string;

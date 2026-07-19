@@ -51,6 +51,8 @@ const colors = {
   white: {
     main: "#FFFFFF",
     light: "#faf9f9aa",
+    main100:"#F3EEFF",
+    main200:"#E4D7FF"
   },
 
   black: {

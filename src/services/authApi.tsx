@@ -29,6 +29,21 @@ export interface AuthResponse {
   };
 }
 
+export interface ForgotPasswordResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  password: string;
+  confirmPassword:string
+}
+
 export interface GoogleLoginRequest {
   token: string;
 }
@@ -71,6 +86,28 @@ export const authApi = createApi({
       }),
       onQueryStarted: onMutationStartedDefault,
     }),
+    forgotPassword: builder.mutation<
+      ForgotPasswordResponse,
+      ForgotPasswordRequest
+    >({
+      query: (body) => ({
+        url: "api/auth/forgot-password",
+        method: "POST",
+        body,
+      }),
+      onQueryStarted: onMutationStartedDefault,
+    }),
+    resetPassword: builder.mutation<
+      ForgotPasswordResponse,
+      ResetPasswordRequest
+    >({
+      query: (body) => ({
+        url: "api/auth/reset-password",
+        method: "POST",
+        body,
+      }),
+      onQueryStarted: onMutationStartedDefault,
+    }),
     googleLogin: builder.mutation<AuthResponse, GoogleLoginRequest>({
       query: ({ token }) => ({
         url: "/api/auth/google",
@@ -82,5 +119,10 @@ export const authApi = createApi({
   }),
 });
 
-export const { useSignupMutation, useLoginMutation, useGoogleLoginMutation } =
-  authApi;
+export const {
+  useSignupMutation,
+  useLoginMutation,
+  useForgotPasswordMutation,
+  useGoogleLoginMutation,
+  useResetPasswordMutation,
+} = authApi;

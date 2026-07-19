@@ -10,6 +10,10 @@ import PublicRoutes from "./PublicRoutes";
 
 import DashboardLayout from "@/layouts/DashboardLayout/DashboardLayout";
 import Analytics from "@/pages/Analytics/Analytics";
+import CheckYourEmail from "@/pages/Authentication/ForgotPassword/ForgotPassword/CheckYourEmail";
+import ForgotPassword from "@/pages/Authentication/ForgotPassword/ForgotPassword/ForgotPassword";
+import ResetPassword from "@/pages/Authentication/ForgotPassword/ResetPassword/ResetPassword";
+import ResetSucessScreen from "@/pages/Authentication/ForgotPassword/ResetPassword/ResetSucessScreen";
 import Contests from "@/pages/DSAPractice/Contests/Contests";
 import MockTests from "@/pages/DSAPractice/MockTests/MockTests";
 import PatternWiseList from "@/pages/DSAPractice/PatternWiseList/PatternWiseList";
@@ -31,6 +35,13 @@ export const router = createBrowserRouter([
     children: [
       { path: "/login", element: <Login /> },
       { path: "/signup", element: <Signup /> },
+      { path: "/forgot-password", element: <ForgotPassword /> },
+      { path: "/check-your-email", element: <CheckYourEmail /> },
+      {
+        path: "/reset-password/:token",
+        element: <ResetPassword />,
+      },
+      { path: "/password-updated", element: <ResetSucessScreen /> },
     ],
   },
   {
