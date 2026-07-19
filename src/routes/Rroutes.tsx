@@ -10,6 +10,8 @@ import PublicRoutes from "./PublicRoutes";
 
 import DashboardLayout from "@/layouts/DashboardLayout/DashboardLayout";
 import Analytics from "@/pages/Analytics/Analytics";
+import ForgotPassword from "@/pages/Authentication/ForgotPassword/ForgotPassword";
+import ResetPassword from "@/pages/Authentication/ResetPassword/ResetPassword";
 import Contests from "@/pages/DSAPractice/Contests/Contests";
 import MockTests from "@/pages/DSAPractice/MockTests/MockTests";
 import PatternWiseList from "@/pages/DSAPractice/PatternWiseList/PatternWiseList";
@@ -31,6 +33,11 @@ export const router = createBrowserRouter([
     children: [
       { path: "/login", element: <Login /> },
       { path: "/signup", element: <Signup /> },
+      { path: "/forgot-password", element: <ForgotPassword /> },
+      {
+        path: "/reset-password/:token",
+        element: <ResetPassword />,
+      },
     ],
   },
   {

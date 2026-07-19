@@ -29,6 +29,15 @@ export interface AuthResponse {
   };
 }
 
+export interface ForgotPasswordResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
 const apiUrl = (import.meta.env["VITE_API_URL"] as string | undefined) ?? "";
 
 export const authApi = createApi({
@@ -67,7 +76,22 @@ export const authApi = createApi({
       }),
       onQueryStarted: onMutationStartedDefault,
     }),
+    forgotPassword: builder.mutation<
+      ForgotPasswordResponse,
+      ForgotPasswordRequest
+    >({
+      query: (body) => ({
+        url: "api/auth/forgot-password",
+        method: "POST",
+        body,
+      }),
+      onQueryStarted: onMutationStartedDefault,
+    }),
   }),
 });
 
-export const { useSignupMutation, useLoginMutation } = authApi;
+export const {
+  useSignupMutation,
+  useLoginMutation,
+  useForgotPasswordMutation,
+} = authApi;

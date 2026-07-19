@@ -54,12 +54,23 @@ export const styles = {
     justifyContent: "space-evenly",
     gap: { xs: 6, lg: 10 },
     flexDirection: { xs: "column", md: "row" },
-    maxHeight:"100vh",
+    maxHeight: "100vh",
   },
 
   basicStyles: {
     alignItems: "center",
     display: "flex",
     justifyContent: "center",
+  },
+
+  emailIconStyle: {
+    width: 64,
+    height: 64,
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    mx: "auto",
+    boxShadow: "0 8px 24px rgba(106, 60, 255, 0.15)",
   },
 };
