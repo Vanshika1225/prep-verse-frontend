@@ -104,7 +104,7 @@ const SignupForm = () => {
         </Typography>
         <GoogleLogin
           onSuccess={(res) => void handleGoogleSuccess(res)}
-          onError={() => console.warn("Failed")}
+          onError={() => console.warn("Failed!")}
         />
         <Typography
           sx={{
