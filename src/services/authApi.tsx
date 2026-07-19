@@ -38,6 +38,10 @@ export interface ForgotPasswordRequest {
   email: string;
 }
 
+export interface GoogleLoginRequest {
+  token: string;
+}
+
 const apiUrl = (import.meta.env["VITE_API_URL"] as string | undefined) ?? "";
 
 export const authApi = createApi({
@@ -87,6 +91,14 @@ export const authApi = createApi({
       }),
       onQueryStarted: onMutationStartedDefault,
     }),
+    googleLogin: builder.mutation<AuthResponse, GoogleLoginRequest>({
+      query: ({ token }) => ({
+        url: "/api/auth/google",
+        method: "POST",
+        body: { token },
+      }),
+      onQueryStarted: onMutationStartedDefault,
+    }),
   }),
 });
 
@@ -94,4 +106,5 @@ export const {
   useSignupMutation,
   useLoginMutation,
   useForgotPasswordMutation,
+  useGoogleLoginMutation,
 } = authApi;

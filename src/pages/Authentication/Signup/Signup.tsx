@@ -13,13 +13,18 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
 import { styles } from "../style";
 
-import { useSignupMutation, type SignupRequest } from "@/services/authApi";
+import {
+  useGoogleLoginMutation,
+  useSignupMutation,
+  type SignupRequest,
+} from "@/services/authApi";
 
 const PasswordRule = ({ valid, text }: { valid: boolean; text: string }) => {
   const theme = useTheme();
@@ -54,6 +59,7 @@ const SignupForm = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const [signup, { isLoading }] = useSignupMutation();
+  const [googleLogin] = useGoogleLoginMutation();
 
   const {
     control,
@@ -92,6 +98,26 @@ const SignupForm = () => {
     }
   };
 
+  const handleGoogleSuccess = async (response: CredentialResponse) => {
+    if (!response.credential) {
+      console.warn("Google credential missing");
+      return;
+    }
+
+    try {
+      const result = await googleLogin({
+        token: response.credential,
+      }).unwrap();
+
+      localStorage.setItem("accessToken", result.data.accessToken);
+      localStorage.setItem("refreshToken", result.data.refreshToken);
+
+      await navigate("/dashboard");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <Card sx={styles.card}>
       <Box sx={styles.headingContainer}>
@@ -101,7 +127,10 @@ const SignupForm = () => {
         >
           Create your account
         </Typography>
-        <Button>Continue With Google</Button>
+        <GoogleLogin
+          onSuccess={(res) => void handleGoogleSuccess(res)}
+          onError={() => console.warn("Failed")}
+        />
         <Typography
           sx={{
             color: theme.palette.black.secondary,
