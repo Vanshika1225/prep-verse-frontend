@@ -15,13 +15,18 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
 import { styles } from "../style";
 
-import { useLoginMutation, type LoginRequest } from "@/services/authApi";
+import {
+  useGoogleLoginMutation,
+  useLoginMutation,
+  type LoginRequest,
+} from "@/services/authApi";
 import { saveAuth } from "@/utils/authMethods";
 
 const LoginForm = () => {
@@ -31,6 +36,7 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const [login, { isLoading }] = useLoginMutation();
+  const [googleLogin] = useGoogleLoginMutation();
 
   const {
     control,
@@ -59,6 +65,26 @@ const LoginForm = () => {
     }
   };
 
+  const handleGoogleSuccess = async (response: CredentialResponse) => {
+    if (!response.credential) {
+      console.warn("Google credential missing");
+      return;
+    }
+
+    try {
+      const result = await googleLogin({
+        token: response.credential,
+      }).unwrap();
+
+      localStorage.setItem("accessToken", result.data.accessToken);
+      localStorage.setItem("refreshToken", result.data.refreshToken);
+
+      await navigate("/dashboard");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <Card sx={styles.card}>
       <Box sx={styles.headingContainer}>
@@ -68,7 +94,10 @@ const LoginForm = () => {
         >
           Login to your account
         </Typography>
-        <Button>Continue With Google</Button>
+        <GoogleLogin
+          onSuccess={(res) => void handleGoogleSuccess(res)}
+          onError={() => console.warn("Failed")}
+        />
         <Typography
           sx={{
             color: theme.palette.black.secondary,
