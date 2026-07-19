@@ -13,7 +13,7 @@ import {
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
-import { styles } from "../style";
+import { styles } from "../../style";
 
 import {
   useForgotPasswordMutation,
@@ -44,7 +44,11 @@ const ResetForm = () => {
       const res = await forgotPassword(data).unwrap();
 
       if (res.success) {
-        // Navigate to "Check your email" screen
+        await navigate("/check-your-email", {
+          state: {
+            email: data.email,
+          },
+        });
       }
     } catch (err) {
       console.error(err);
@@ -57,7 +61,7 @@ const ResetForm = () => {
         <Box
           sx={{
             ...styles.emailIconStyle,
-            background: `linear-gradient(180deg, ${theme.palette.white.main100} 0%, ${theme.palette.white.main200} 100%)`,
+            background: `linear-gradient(180deg, ${theme.palette.background.paper} 0%, ${theme.palette.action.hover} 100%)`,
           }}
         >
           <EmailOutlinedIcon
@@ -123,7 +127,7 @@ const ResetForm = () => {
         >
           <Button
             variant="borderless"
-            onClick={() => void navigate("/signup")}
+            onClick={() => void navigate("/login")}
             sx={styles.alreadyHaveAcount}
           >
             Back to Login

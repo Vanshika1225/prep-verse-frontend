@@ -18,6 +18,7 @@ import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
+import { PasswordRule } from "../ForgotPassword/PasswordRule/PasswordRule";
 import { styles } from "../style";
 
 import {
@@ -25,32 +26,6 @@ import {
   useSignupMutation,
   type SignupRequest,
 } from "@/services/authApi";
-
-const PasswordRule = ({ valid, text }: { valid: boolean; text: string }) => {
-  const theme = useTheme();
-
-  return (
-    <Box sx={styles.passwordRule}>
-      <Typography
-        component="span"
-        sx={{
-          color: valid ? theme.palette.success.main : theme.palette.black.main,
-          fontSize: 16,
-          lineHeight: 1,
-        }}
-      >
-        {valid ? "✓" : "○"}
-      </Typography>
-
-      <Typography
-        variant="body1-medium"
-        color={valid ? theme.palette.success.main : theme.palette.black.main}
-      >
-        {text}
-      </Typography>
-    </Box>
-  );
-};
 
 const SignupForm = () => {
   const theme = useTheme();
