@@ -12,7 +12,10 @@ const DashboardLayout = () => {
       <Box
         component="main"
         sx={{
-          ml: `${drawerWidth}px`,
+          ml: {
+            xs: 0,
+            md: `${drawerWidth}px`,
+          },
           p: 3,
         }}
       >
