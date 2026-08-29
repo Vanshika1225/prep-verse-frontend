@@ -9,6 +9,7 @@ interface CustomSelectProps {
   onChange: (value: string) => void;
   label: string;
   minWidth: number;
+  width: number;
 }
 
 const SelectComponent = ({
@@ -17,6 +18,7 @@ const SelectComponent = ({
   onChange,
   options = [],
   minWidth = 125,
+  width,
 }: CustomSelectProps) => {
   return (
     <Select
@@ -25,9 +27,20 @@ const SelectComponent = ({
       onChange={(e) => onChange(e.target.value)}
       displayEmpty
       sx={{
-        width:{md:minWidth,xs:"100%"},
+        width: { md: minWidth, xs: "100%" },
         bgcolor: "white",
         borderRadius: "8px",
+      }}
+      MenuProps={{
+        slotProps: {
+          paper: {
+            sx: {
+              maxHeight: 300,
+              overflowY: "auto",
+              width: { md: width, cs: "100%" },
+            },
+          },
+        },
       }}
       renderValue={(selected) => (
         <Typography variant="body-medium">

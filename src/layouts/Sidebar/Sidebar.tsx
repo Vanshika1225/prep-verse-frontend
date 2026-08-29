@@ -67,10 +67,6 @@ const menuItems = [
         text: "Contests",
         path: "/practice/contests",
       },
-      {
-        text: "Mock Tests",
-        path: "/practice/mock-tests",
-      },
     ],
   },
   {

@@ -4,7 +4,7 @@ import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import type { Problem } from "@/pages/DSAPractice/ProblemList/types";
 
 interface ProblemTableProps {
-  rows: Problem[];
+  rows: Problem[] | [];
   columns: GridColDef<Problem>[];
   theme: Theme;
 }
@@ -14,7 +14,7 @@ const MuiTableComponent = ({ rows, columns, theme }: ProblemTableProps) => {
     <DataGrid
       rows={rows}
       columns={columns}
-      getRowId={(row) => row.id}
+      getRowId={(row) => row._id}
       hideFooter
       disableRowSelectionOnClick
       disableColumnResize

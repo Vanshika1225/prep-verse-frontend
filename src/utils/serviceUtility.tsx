@@ -12,7 +12,7 @@ interface SuccessResponse {
 
 interface ErrorResponse {
   error?: {
-    status?: string;
+    status?: string | number;
     message?: string;
     data?: {
       message?: string;
@@ -35,7 +35,7 @@ const getErrorMessage = (error: unknown): string => {
   return (
     err.error?.data?.message ??
     err.error?.message ??
-    err.error?.status ??
+    err.error?.status?.toString() ??
     "Something went wrong"
   );
 };

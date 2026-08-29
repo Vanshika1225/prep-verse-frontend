@@ -8,6 +8,8 @@ import {
   Chip,
   IconButton,
   InputAdornment,
+  Menu,
+  MenuItem,
   Pagination,
   Tab,
   Tabs,
@@ -18,118 +20,17 @@ import {
   type Theme,
 } from "@mui/material";
 import { type GridColDef } from "@mui/x-data-grid";
-import { useMemo, useState } from "react";
+import { debounce } from "lodash";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import {
-  DIFFICULTY_OPTIONS,
-  STATUS_OPTIONS,
-  TABS,
-  TOPIC_OPTIONS,
-  type Problem,
-} from "../types";
+import { TABS, type Problem } from "../types";
 
 import MuiTableComponent from "@/components/MuiTableComponent";
 import SelectComponent from "@/components/SelectComponent";
-import theme from "@/theme/theme";
-
-const PROBLEMS: Problem[] = [
-  {
-    id: 1,
-    title: "Two Sum",
-    starred: true,
-    tags: ["Array", "Hash Table"],
-    top150: true,
-    difficulty: "Easy",
-    acceptance: "53.15%",
-    time: "20m",
-    status: "Solved",
-    action: "Solve Again",
-  },
-  {
-    id: 2,
-    title: "Add Two Numbers",
-    starred: true,
-    tags: ["Linked List", "Math"],
-    top150: true,
-    difficulty: "Medium",
-    acceptance: "43.70%",
-    time: "45m",
-    status: "Attempted",
-    action: "Continue",
-  },
-  {
-    id: 3,
-    title: "Longest Substring Without Repeating Characters",
-    starred: false,
-    tags: ["Hash Table", "String"],
-    top150: true,
-    difficulty: "Medium",
-    acceptance: "33.31%",
-    time: "35m",
-    status: "Not Solved",
-    action: "Solve",
-  },
-  {
-    id: 4,
-    title: "Median of Two Sorted Arrays",
-    starred: false,
-    tags: ["Array", "Binary Search"],
-    top150: true,
-    difficulty: "Hard",
-    acceptance: "30.71%",
-    time: "60m",
-    status: "Not Solved",
-    action: "Solve",
-  },
-  {
-    id: 5,
-    title: "Maximum Subarray",
-    starred: true,
-    tags: ["Array", "Divide and Conquer"],
-    top150: true,
-    difficulty: "Medium",
-    acceptance: "53.56%",
-    time: "25m",
-    status: "Solved",
-    action: "Solve Again",
-  },
-  {
-    id: 6,
-    title: "Merge k Sorted Lists",
-    starred: false,
-    tags: ["Linked List", "Heap"],
-    top150: true,
-    difficulty: "Hard",
-    acceptance: "35.17%",
-    time: "50m",
-    status: "To Revise",
-    action: "Solve",
-  },
-  {
-    id: 7,
-    title: "Climbing Stairs",
-    starred: true,
-    tags: ["Dynamic Programming"],
-    top150: true,
-    difficulty: "Easy",
-    acceptance: "60.95%",
-    time: "15m",
-    status: "Solved",
-    action: "Solve Again",
-  },
-  {
-    id: 8,
-    title: "Kth Largest Element in an Array",
-    starred: true,
-    tags: ["Array", "Divide and Conquer"],
-    top150: true,
-    difficulty: "Medium",
-    acceptance: "45.66%",
-    time: "30m",
-    status: "Attempted",
-    action: "Continue",
-  },
-];
+import {
+  useGetAllProblemsQuery,
+  useUpdateProblemMutation,
+} from "@/services/dsaApi";
 
 const diffMap = (theme: Theme) => ({
   Easy: {
@@ -158,26 +59,46 @@ const statusMap = (theme: Theme) => ({
     color: theme.palette.primary.main,
     bg: theme.palette.secondary.light,
   },
-
-  "Not Solved": {
+  "Not Started": {
     color: theme.palette.black.secondary,
     bg: theme.palette.secondary.light,
   },
-
-  "To Revise": {
+  Review: {
     color: theme.palette.warning.main,
     bg: theme.palette.warning.light,
   },
 });
 
-const StarIcon = ({ active, color }: { active: boolean; color: string }) => {
+const TAB_STATUS_MAP: Record<number, string> = {
+  0: "",
+  2: "Solved",
+  3: "Attempted",
+  4: "Review",
+};
+
+const BOOKMARKED_TAB_INDEX = 1;
+
+const STATUS_OPTIONS = ["Not Started", "Attempted", "Review", "Solved"];
+
+const StarIcon = ({
+  active,
+  color,
+  onClick,
+}: {
+  active: boolean;
+  color: string;
+  onClick?: (e: React.MouseEvent) => void;
+}) => {
   return (
     <Box
       component="span"
+      onClick={onClick}
       sx={{
         color,
         fontSize: 20,
         lineHeight: 1,
+        cursor: onClick ? "pointer" : "default",
+        userSelect: "none",
       }}
     >
       {active ? "★" : "☆"}
@@ -185,9 +106,61 @@ const StarIcon = ({ active, color }: { active: boolean; color: string }) => {
   );
 };
 
-const columns: GridColDef<Problem>[] = [
+const RowActionsMenu = ({
+  problem,
+  onUpdateStatus,
+}: {
+  problem: Problem;
+  onUpdateStatus: (problem: Problem, status: string) => void;
+}) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
+    e.stopPropagation();
+    setAnchorEl(e.currentTarget);
+  };
+
+  const handleClose = (
+    _event: "",
+    _reason: "backdropClick" | "escapeKeyDown",
+  ) => {
+    setAnchorEl(null);
+  };
+
+  const handleSelect = (e: React.MouseEvent, nextStatus: string) => {
+    e.stopPropagation();
+    onUpdateStatus(problem, nextStatus);
+    setAnchorEl(null);
+  };
+
+  return (
+    <>
+      <IconButton size="small" onClick={handleOpen}>
+        <MoreIcon />
+      </IconButton>
+
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+        {STATUS_OPTIONS.map((option) => (
+          <MenuItem
+            key={option}
+            selected={problem.status === option}
+            onClick={(e) => handleSelect(e, option)}
+          >
+            Mark as {option}
+          </MenuItem>
+        ))}
+      </Menu>
+    </>
+  );
+};
+
+const getColumns = (
+  theme: Theme,
+  onToggleBookmark: (problem: Problem, e: React.MouseEvent) => void,
+  onUpdateStatus: (problem: Problem, status: string) => void,
+): GridColDef<Problem>[] => [
   {
-    field: "starred",
+    field: "bookmarked",
     headerName: "",
     width: 50,
     sortable: false,
@@ -202,12 +175,13 @@ const columns: GridColDef<Problem>[] = [
         }}
       >
         <StarIcon
-          active={row.starred}
+          active={row.bookmarked ?? false}
           color={
-            row.starred
+            row.bookmarked
               ? theme.palette.warning.main
-              : theme.palette.white.main300
+              : theme.palette.black.main
           }
+          onClick={(e) => onToggleBookmark(row, e)}
         />
       </Box>
     ),
@@ -216,53 +190,85 @@ const columns: GridColDef<Problem>[] = [
     field: "title",
     headerName: "Title",
     flex: 1,
-    minWidth: 180,
+    minWidth: 200,
+    renderCell: ({ row }) => (
+      <Tooltip title={row.title || "-"} arrow>
+        <Typography
+          variant="body-secondary-bold"
+          sx={{
+            fontWeight: 550,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            width: "100%",
+          }}
+        >
+          {row.title || "-"}
+        </Typography>
+      </Tooltip>
+    ),
+  },
+  {
+    field: "topics",
+    headerName: "Topics",
+    flex: 1,
+    minWidth: 220,
+    sortable: false,
     renderCell: ({ row }) => (
       <Box
         sx={{
           display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          gap: 0.8,
-          lineHeight: 1,
+          alignItems: "center",
+          gap: 0.5,
+          flexWrap: "wrap",
+          width: "100%",
+          py: 0.5,
         }}
       >
-        <Tooltip title={row.title ?? "-"} arrow>
+        {row.topics?.length ? (
+          row.topics.map((topic) => (
+            <Chip
+              key={topic}
+              label={topic}
+              size="small"
+              sx={{
+                height: 26,
+                borderRadius: "6px",
+                fontSize: "12px",
+                fontWeight: 500,
+                bgcolor: theme.palette.white.main300,
+                color: theme.palette.black.secondary,
+                border: `1px solid ${theme.palette.divider}`,
+                "& .MuiChip-label": {
+                  px: 1,
+                },
+              }}
+            />
+          ))
+        ) : (
           <Typography
-            variant="body-secondary-bold"
+            variant="body-medium"
             sx={{
-              fontWeight: 550,
-              lineHeight: "14px",
-              m: 0,
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              width: "150px",
-              textOverflow: "ellipsis",
+              color: theme.palette.black.secondary,
             }}
           >
-            {row.title ?? "-"}
+            -
           </Typography>
-        </Tooltip>
-
-        <Typography
-          variant="body1-secondary-medium"
-          sx={{
-            color: theme.palette.black.secondary,
-            lineHeight: "14px",
-            m: 0,
-          }}
-        >
-          {row.tags?.join(", ") || "-"}
-        </Typography>
+        )}
       </Box>
     ),
   },
+
   {
     field: "difficulty",
     headerName: "Difficulty",
     width: 110,
     renderCell: ({ value }) => {
       const diff = diffMap(theme)[value as Problem["difficulty"]];
+
+      if (!diff) {
+        return <Chip label={String(value ?? "-")} size="small" />;
+      }
 
       return (
         <Chip
@@ -282,28 +288,32 @@ const columns: GridColDef<Problem>[] = [
       );
     },
   },
-  {
-    field: "acceptance",
-    headerName: "Acceptance",
-    width: 110,
-    renderCell: ({ value }) => (
-      <Typography variant="body-medium">{value ?? "-"}</Typography>
-    ),
-  },
-  {
-    field: "time",
-    headerName: "Time",
-    width: 90,
-    renderCell: ({ value }) => (
-      <Typography variant="body-medium">{value ?? "-"}</Typography>
-    ),
-  },
+
   {
     field: "status",
     headerName: "Status",
     width: 125,
     renderCell: ({ value }) => {
-      const status = statusMap(theme)[value as Problem["status"]];
+      const statusStyles = statusMap(theme);
+
+      const status =
+        typeof value === "string" && value in statusStyles
+          ? statusStyles[value as keyof typeof statusStyles]
+          : undefined;
+
+      if (!status) {
+        return (
+          <Chip
+            label={String(value ?? "-")}
+            size="small"
+            sx={{
+              fontWeight: 600,
+              borderRadius: "6px",
+              height: 28,
+            }}
+          />
+        );
+      }
 
       return (
         <Chip
@@ -323,6 +333,7 @@ const columns: GridColDef<Problem>[] = [
       );
     },
   },
+
   {
     field: "actions",
     headerName: "Actions",
@@ -332,6 +343,7 @@ const columns: GridColDef<Problem>[] = [
     disableColumnMenu: true,
     align: "right",
     headerAlign: "right",
+
     renderCell: ({ row }) => (
       <Box
         sx={{
@@ -344,7 +356,10 @@ const columns: GridColDef<Problem>[] = [
       >
         <Button
           size="small"
-          variant={row.action === "Solve Again" ? "text" : "contained"}
+          variant={row.status === "Solved" ? "text" : "contained"}
+          href={row.problemLink}
+          target="_blank"
+          rel="noopener noreferrer"
           sx={{
             minWidth: 88,
             textTransform: "none",
@@ -352,12 +367,10 @@ const columns: GridColDef<Problem>[] = [
             fontWeight: "bold",
           }}
         >
-          {row.action}
+          {row.status === "Solved" ? "Solve Again" : "Solve"}
         </Button>
 
-        <IconButton size="small">
-          <MoreIcon />
-        </IconButton>
+        <RowActionsMenu problem={row} onUpdateStatus={onUpdateStatus} />
       </Box>
     ),
   },
@@ -366,9 +379,11 @@ const columns: GridColDef<Problem>[] = [
 const ProblemCard = ({
   problem,
   theme,
+  onToggleBookmark,
 }: {
   problem: Problem;
   theme: Theme;
+  onToggleBookmark: (problem: Problem, e: React.MouseEvent) => void;
 }) => {
   const diff = diffMap(theme)[problem.difficulty];
 
@@ -393,12 +408,13 @@ const ProblemCard = ({
         }}
       >
         <StarIcon
-          active={problem.starred}
+          active={problem?.bookmarked ?? false}
           color={
-            problem.starred
+            problem.bookmarked
               ? theme.palette.warning.main
               : theme.palette.white.main400
           }
+          onClick={(e) => onToggleBookmark(problem, e)}
         />
 
         <Chip
@@ -441,66 +457,165 @@ const ProblemCard = ({
           color: theme.palette.black.secondary,
         }}
       >
-        {problem.tags.join(", ")}
+        {problem.topics.join(", ")}
       </Typography>
-
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mt: 2,
-        }}
-      >
-        <Typography variant="p-medium">{problem.time}</Typography>
-
-        <Button
-          size="small"
-          variant="contained"
-          sx={{
-            textTransform: "none",
-            borderRadius: "7px",
-          }}
-        >
-          {problem.action}
-        </Button>
-      </Box>
     </Box>
   );
 };
+
+const PAGE_SIZE = 10;
 
 export const LeftSection = () => {
   const theme = useTheme();
 
   const [tab, setTab] = useState(0);
   const [page, setPage] = useState(1);
-  const [view, setView] = useState("list");
+  const [topic, setTopic] = useState("");
+  const [status, setStatus] = useState("");
   const [search, setSearch] = useState("");
-  const [topic, setTopic] = useState("all");
-  const [difficulty, setDifficulty] = useState("all");
-  const [status, setStatus] = useState("all");
+  const [view, setView] = useState("list");
+  const [difficulty, setDifficulty] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [pendingUpdates, setPendingUpdates] = useState<
+    Record<string, Partial<Pick<Problem, "bookmarked" | "status">>>
+  >({});
+
+  const debouncedSetSearch = useMemo(
+    () =>
+      debounce((value: string) => {
+        setSearch(value);
+        setPage(1);
+      }, 400),
+    [],
+  );
+
+  useEffect(() => {
+    return () => {
+      debouncedSetSearch.cancel();
+    };
+  }, [debouncedSetSearch]);
+
+  const handleSearchChange = (value: string) => {
+    setSearchInput(value);
+    debouncedSetSearch(value);
+  };
+
+  const effectiveStatus = tab === 0 ? status : (TAB_STATUS_MAP[tab] ?? "");
+
+  const [updateProblem] = useUpdateProblemMutation();
+  const { data: problemsResponse } = useGetAllProblemsQuery({
+    topic,
+    difficulty,
+    status: effectiveStatus,
+    search,
+    page,
+    limit: PAGE_SIZE,
+    ...(tab === BOOKMARKED_TAB_INDEX ? { bookmarked: true } : {}),
+  });
+
+  const filters = problemsResponse?.data?.filters;
+  const pagination = problemsResponse?.data?.pagination;
+
+  const totalProblems = pagination?.totalProblems ?? 0;
+  const totalPages = pagination?.totalPages ?? 1;
+  const currentPage = pagination?.currentPage ?? page;
+  const limit = pagination?.limit ?? PAGE_SIZE;
+
+  const from = totalProblems === 0 ? 0 : (currentPage - 1) * limit + 1;
+  const to = Math.min(currentPage * limit, totalProblems);
+
+  const allProblems = useMemo(() => {
+    const raw = problemsResponse?.data?.problems ?? [];
+
+    return raw.map((problem) => ({
+      ...problem,
+      ...pendingUpdates[problem._id],
+    }));
+  }, [problemsResponse, pendingUpdates]);
 
   const filteredProblems = useMemo(() => {
-    let result = [...PROBLEMS];
-    if (search.trim()) {
-      result = result.filter((problem) =>
-        problem.title.toLowerCase().includes(search.toLowerCase()),
-      );
+    if (tab === BOOKMARKED_TAB_INDEX) {
+      return allProblems.filter((problem) => problem.bookmarked);
     }
-    if (tab === 1) {
-      result = result.filter((problem) => problem.starred);
-    }
-    if (tab === 2) {
-      result = result.filter((problem) => problem.status === "Solved");
-    }
-    if (tab === 3) {
-      result = result.filter((problem) => problem.status === "Attempted");
-    }
-    if (tab === 4) {
-      result = result.filter((problem) => problem.status === "To Revise");
-    }
-    return result;
-  }, [search, tab]);
+
+    return allProblems;
+  }, [allProblems, tab]);
+
+  const options = useMemo(() => {
+    const topicValues = filters?.topics ?? [];
+    const difficultyValues = filters?.difficulties ?? [];
+    const statusValues = filters?.statuses ?? [];
+
+    return {
+      topic: topicValues.map((value) => ({ label: value, value })),
+      difficulty: difficultyValues.map((value) => ({ label: value, value })),
+      status: statusValues.map((value) => ({ label: value, value })),
+    };
+  }, [filters]);
+
+  const handleToggleBookmark = useCallback(
+    (problem: Problem, e: React.MouseEvent) => {
+      e.stopPropagation();
+
+      const next = !(problem.bookmarked ?? false);
+
+      setPendingUpdates((prev) => ({
+        ...prev,
+        [problem._id]: { ...prev[problem._id], bookmarked: next },
+      }));
+
+      updateProblem({
+        id: problem._id,
+        data: { bookmarked: next, status: problem.status },
+      })
+        .unwrap()
+        .catch(() => {
+          setPendingUpdates((prev) => ({
+            ...prev,
+            [problem._id]: {
+              ...prev[problem._id],
+              bookmarked: problem.bookmarked ?? false,
+            },
+          }));
+        });
+    },
+    [updateProblem],
+  );
+
+  const handleUpdateStatus = useCallback(
+    (problem: Problem, nextStatus: string) => {
+      setPendingUpdates((prev) => ({
+        ...prev,
+        [problem._id]: {
+          ...prev[problem._id],
+          status: nextStatus,
+        },
+      }));
+
+      updateProblem({
+        id: problem._id,
+        data: { bookmarked: problem.bookmarked ?? false, status: nextStatus },
+      })
+        .unwrap()
+        .catch(() => {
+          setPendingUpdates((prev) => ({
+            ...prev,
+            [problem._id]: { ...prev[problem._id], status: problem.status },
+          }));
+        });
+    },
+    [updateProblem],
+  );
+
+  const columns = useMemo(
+    () => getColumns(theme, handleToggleBookmark, handleUpdateStatus),
+    [theme, handleToggleBookmark, handleUpdateStatus],
+  );
+
+  const handleTabChange = (_: React.SyntheticEvent, value: number) => {
+    setTab(value);
+    setPage(1);
+  };
 
   return (
     <Box
@@ -596,12 +711,12 @@ export const LeftSection = () => {
         }}
       >
         <TextField
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          value={searchInput}
+          onChange={(e) => handleSearchChange(e.target.value)}
           placeholder="Search problems..."
           size="small"
           sx={{
-            minWidth: {md:220,xs:"100%"},
+            minWidth: { md: 220, xs: "100%" },
             bgcolor: "white",
             "& .MuiOutlinedInput-root": {
               borderRadius: "8px",
@@ -628,34 +743,43 @@ export const LeftSection = () => {
         <SelectComponent
           label="Topic"
           value={topic}
-          onChange={setTopic}
-          options={TOPIC_OPTIONS}
+          onChange={(value) => {
+            setTopic(value);
+            setPage(1);
+          }}
+          options={options.topic}
           minWidth={155}
+          width={100}
         />
 
         <SelectComponent
           label="Difficulty"
           value={difficulty}
-          onChange={setDifficulty}
-          options={DIFFICULTY_OPTIONS}
+          onChange={(value) => {
+            setDifficulty(value);
+            setPage(1);
+          }}
+          options={options.difficulty}
           minWidth={155}
+          width={100}
         />
 
         <SelectComponent
           label="Status"
           value={status}
-          onChange={setStatus}
-          options={STATUS_OPTIONS}
+          onChange={(value) => {
+            setStatus(value);
+            setPage(1);
+          }}
+          options={options.status}
           minWidth={155}
+          width={100}
         />
       </Box>
 
       <Tabs
         value={tab}
-        onChange={(_, value: number) => {
-          setTab(value);
-          setPage(1);
-        }}
+        onChange={handleTabChange}
         variant="scrollable"
         scrollButtons={false}
         sx={{
@@ -708,12 +832,20 @@ export const LeftSection = () => {
             sx={{
               p: 2,
               display: "grid",
-              gridTemplateColumns: {md:"repeat(2, minmax(0, 1fr))", xs:"repeat(1, minmax(0, 1fr))"},
+              gridTemplateColumns: {
+                md: "repeat(2, minmax(0, 1fr))",
+                xs: "repeat(1, minmax(0, 1fr))",
+              },
               gap: 1.5,
             }}
           >
-            {filteredProblems.map((problem, index) => (
-              <ProblemCard key={index} problem={problem} theme={theme} />
+            {filteredProblems?.map((problem) => (
+              <ProblemCard
+                key={problem._id}
+                problem={problem}
+                theme={theme}
+                onToggleBookmark={handleToggleBookmark}
+              />
             ))}
           </Box>
         )}
@@ -733,16 +865,19 @@ export const LeftSection = () => {
             color: theme.palette.black.secondary,
           }}
         >
-          Showing 1 to {filteredProblems.length} of 245 problems
+          {totalProblems === 0
+            ? "No problems found"
+            : `Showing ${from} to ${to} of ${totalProblems} problems`}
         </Typography>
 
         <Pagination
-          page={page}
+          page={currentPage}
           onChange={(_, value) => setPage(value)}
-          count={31}
+          count={totalPages}
           siblingCount={1}
           boundaryCount={1}
           shape="rounded"
+          disabled={totalPages <= 1}
           sx={{
             "& .MuiPaginationItem-root": {
               borderRadius: "7px",
@@ -758,3 +893,5 @@ export const LeftSection = () => {
     </Box>
   );
 };
+
+export default LeftSection;
