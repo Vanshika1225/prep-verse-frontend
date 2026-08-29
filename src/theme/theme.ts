@@ -19,11 +19,12 @@ const colors = {
     main: "#5023e7",
     light: "#8B6CFF",
     dark: "#5838E5",
-    bg: "#F5F1FF",
+    main100: "#F5F1FF",
   },
 
   secondary: {
     main: "#A78BFA",
+    light: "#F5F1FF",
   },
 
   success: {
@@ -34,6 +35,8 @@ const colors = {
   warning: {
     main: "#F59E0B",
     light: "#FEF3C7",
+    main100: "#B45309",
+    main200:"#92400E"
   },
 
   error: {
@@ -45,14 +48,16 @@ const colors = {
     main: "#0F172A",
     hover: "#1E293B",
     active: "#6D4AFF",
-    main100:"#172033",
+    main100: "#172033",
   },
 
   white: {
     main: "#FFFFFF",
     light: "#faf9f9aa",
-    main100:"#F3EEFF",
-    main200:"#E4D7FF"
+    main100: "#F3EEFF",
+    main200: "#E4D7FF",
+    main300: "#FAFAFB",
+    main400: "#CBD5E1",
   },
 
   black: {
@@ -107,13 +112,13 @@ const Theme = createTheme({
           backgroundColor: colors.white.main,
           fontFamily: '"Poppins", sans-serif',
           scrollbarWidth: "thin", // Firefox
-          scrollbarColor: "#7B7F87 transparent",
+          scrollbarColor: "#d9dadb transparent",
         },
 
         "*": {
           fontFamily: '"Poppins", sans-serif !important',
           scrollbarWidth: "thin",
-          scrollbarColor: "#7B7F87 transparent",
+          scrollbarColor: "#c0bfbf transparent",
         },
 
         /* Chrome / Edge / Safari */
@@ -130,12 +135,12 @@ const Theme = createTheme({
           background: "transparent",
         },
         "*::-webkit-scrollbar-thumb": {
-          backgroundColor: "rgba(123,127,135,0.45)",
+          backgroundColor: "rgba(123,127,135,0.3)",
           borderRadius: "999px",
         },
 
         "*::-webkit-scrollbar-thumb:hover": {
-          backgroundColor: "rgba(123,127,135,0.8)",
+          backgroundColor: "rgba(123,127,135,0.3)",
         },
       },
     },
@@ -195,7 +200,7 @@ const Theme = createTheme({
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          height: "40px",
+          height: "35px",
           borderRadius: "8px",
           "& .MuiOutlinedInput-notchedOutline": {
             border: `1px solid ${colors.black.secondary}`,
@@ -254,7 +259,7 @@ const Theme = createTheme({
         {
           props: { size: "small" },
           style: {
-            fontSize: "12px",
+            fontSize: "13px",
             padding: "6px 10px",
           },
         },

@@ -1,12 +1,14 @@
 import ArticleRoundedIcon from "@mui/icons-material/ArticleRounded";
 import BarChartRoundedIcon from "@mui/icons-material/BarChartRounded";
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
+import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
 import CodeRoundedIcon from "@mui/icons-material/CodeRounded";
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import ExpandLessRoundedIcon from "@mui/icons-material/ExpandLessRounded";
 import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
+import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import RouteRoundedIcon from "@mui/icons-material/RouteRounded";
 import WorkOutlineRoundedIcon from "@mui/icons-material/WorkOutlineRounded";
 import {
@@ -22,6 +24,8 @@ import {
   Button,
   useTheme,
   Drawer,
+  IconButton,
+  useMediaQuery,
 } from "@mui/material";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -62,10 +66,6 @@ const menuItems = [
       {
         text: "Contests",
         path: "/practice/contests",
-      },
-      {
-        text: "Mock Tests",
-        path: "/practice/mock-tests",
       },
     ],
   },
@@ -115,29 +115,47 @@ const menuItems = [
 const Sidebar = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-
   const location = useLocation();
+
   const pathname = location.pathname;
 
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [openPractice, setOpenPractice] = useState(true);
 
-  return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        "& .MuiDrawer-paper": {
-          width: drawerWidth,
-          boxSizing: "border-box",
-          bgcolor: theme.palette.sidebar.main,
-          color: theme.palette.white.main,
-          borderRight: "1px solid rgba(255,255,255,0.06)",
-          display: "flex",
-          flexDirection: "column",
-        },
-      }}
-    >
+  const handleNavigate = (path: string) => {
+    void navigate(path);
+
+    if (isMobile) {
+      setMobileOpen(false);
+    }
+  };
+
+  const drawerContent = (
+    <>
+      {isMobile && (
+        <IconButton
+          onClick={() => setMobileOpen(false)}
+          sx={{
+            position: "absolute",
+            top: 12,
+            right: -1,
+            zIndex: 2,
+            width: 32,
+            height: 32,
+            color: theme.palette.white.main,
+            bgcolor: theme.palette.sidebar.main,
+            borderRadius: "8px 0 0 8px",
+
+            "&:hover": {
+              bgcolor: theme.palette.sidebar.main,
+            },
+          }}
+        >
+          <ChevronLeftRoundedIcon />
+        </IconButton>
+      )}
+
       <Box
         sx={{
           px: 3,
@@ -196,7 +214,7 @@ const Sidebar = () => {
                           key={child.path}
                           text={child.text}
                           active={pathname === child.path}
-                          onClick={() => void navigate(child.path)}
+                          onClick={() => handleNavigate(child.path)}
                         />
                       ))}
                     </List>
@@ -210,9 +228,9 @@ const Sidebar = () => {
                 key={item.path}
                 text={item.text}
                 icon={item.icon}
-                // badge={item.badge}
                 active={pathname === item.path}
-                onClick={() => void navigate(item.path)}
+                badge={item.badge ?? false}
+                onClick={() => handleNavigate(item.path)}
               />
             );
           })}
@@ -246,7 +264,55 @@ const Sidebar = () => {
           </Button>
         </Card>
       </Box>
-    </Drawer>
+    </>
+  );
+
+  return (
+    <>
+      {isMobile && !mobileOpen && (
+        <IconButton
+          onClick={() => setMobileOpen(true)}
+          sx={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            zIndex: theme.zIndex.drawer + 1,
+            color: theme.palette.sidebar.main,
+
+            "&:hover": {
+              bgcolor: "transparent",
+            },
+          }}
+        >
+          <MenuRoundedIcon />
+        </IconButton>
+      )}
+
+      <Drawer
+        variant={isMobile ? "temporary" : "permanent"}
+        open={isMobile ? mobileOpen : true}
+        onClose={() => setMobileOpen(false)}
+        ModalProps={{
+          keepMounted: true,
+        }}
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+            boxSizing: "border-box",
+            bgcolor: theme.palette.sidebar.main,
+            color: theme.palette.white.main,
+            borderRight: "1px solid rgba(255,255,255,0.06)",
+            display: "flex",
+            flexDirection: "column",
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+    </>
   );
 };
 

@@ -7,11 +7,19 @@ declare module "@mui/material/styles" {
       main100: string;
       secondary: string;
     };
+    warning: {
+      main: string;
+      light: string;
+      main100: string;
+      main200: string;
+    };
     white: {
       main: string;
       light: string;
       main100: string;
       main200: string;
+      main300: string;
+      main400: string;
     };
     sidebar: {
       main: string;
@@ -31,11 +39,19 @@ declare module "@mui/material/styles" {
       main100: string;
       secondary: string;
     };
+    warning: {
+      main: string;
+      light: string;
+      main100: string;
+      main200: string;
+    };
     white?: {
       main: string;
       light: string;
       main100: string;
       main200: string;
+      main300: string;
+      main400: string;
     };
     sidebar?: {
       main: string;
