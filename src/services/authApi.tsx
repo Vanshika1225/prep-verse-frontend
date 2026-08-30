@@ -1,5 +1,13 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import {
+  createApi,
+  fetchBaseQuery,
+  type BaseQueryFn,
+  type FetchArgs,
+  type FetchBaseQueryError,
+} from "@reduxjs/toolkit/query/react";
 
+import { logout as logoutAction } from "@/redux/slices/authSlice";
+import { getAccessToken, setAccessToken, clearAuth } from "@/utils/authMethods";
 import { onMutationStartedDefault } from "@/utils/serviceUtility";
 
 export interface SignupRequest {
@@ -14,18 +22,19 @@ export interface LoginRequest {
   rememberMe: boolean;
 }
 
+export interface AuthUser {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
 export interface AuthResponse {
   success: boolean;
   message: string;
   data: {
     accessToken: string;
-    refreshToken: string;
-    user: {
-      _id: string;
-      name: string;
-      email: string;
-      role: string;
-    };
+    user: AuthUser;
   };
 }
 
@@ -41,31 +50,74 @@ export interface ForgotPasswordRequest {
 export interface ResetPasswordRequest {
   token: string;
   password: string;
-  confirmPassword:string
+  confirmPassword: string;
 }
 
 export interface GoogleLoginRequest {
   token: string;
 }
 
+export interface RefreshTokenResponse {
+  success: boolean;
+  message: string;
+  data: {
+    accessToken: string;
+  };
+}
+
 const apiUrl = (import.meta.env["VITE_API_URL"] as string | undefined) ?? "";
+
+const rawBaseQuery = fetchBaseQuery({
+  baseUrl: apiUrl,
+  credentials: "include",
+
+  prepareHeaders: (headers) => {
+    const token = getAccessToken();
+
+    if (token) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+
+    return headers;
+  },
+});
+
+const baseQueryWithReauth: BaseQueryFn<
+  FetchArgs,
+  unknown,
+  FetchBaseQueryError
+> = async (args, api, extraOptions) => {
+  let result = await rawBaseQuery(args, api, extraOptions);
+
+  if (result.error?.status === 401) {
+    const refreshResult = await rawBaseQuery(
+      {
+        url: "/api/auth/refresh-token",
+        method: "POST",
+      },
+      api,
+      extraOptions,
+    );
+
+    if (refreshResult.data) {
+      const { accessToken } = (refreshResult.data as RefreshTokenResponse).data;
+      setAccessToken(accessToken);
+      result = await rawBaseQuery(args, api, extraOptions);
+    } else {
+      clearAuth();
+      api.dispatch(logoutAction());
+
+      window.location.href = "/login";
+    }
+  }
+
+  return result;
+};
 
 export const authApi = createApi({
   reducerPath: "authApi",
 
-  baseQuery: fetchBaseQuery({
-    baseUrl: apiUrl,
-
-    prepareHeaders: (headers) => {
-      const token = localStorage.getItem("accessToken");
-
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      }
-
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithReauth,
 
   tagTypes: ["Auth"],
 
@@ -91,7 +143,7 @@ export const authApi = createApi({
       ForgotPasswordRequest
     >({
       query: (body) => ({
-        url: "api/auth/forgot-password",
+        url: "/api/auth/forgot-password",
         method: "POST",
         body,
       }),
@@ -102,7 +154,7 @@ export const authApi = createApi({
       ResetPasswordRequest
     >({
       query: (body) => ({
-        url: "api/auth/reset-password",
+        url: "/api/auth/reset-password",
         method: "POST",
         body,
       }),

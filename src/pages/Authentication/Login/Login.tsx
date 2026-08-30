@@ -66,19 +66,10 @@ const LoginForm = () => {
   };
 
   const handleGoogleSuccess = async (response: CredentialResponse) => {
-    if (!response.credential) {
-      console.warn("Google credential missing");
-      return;
-    }
-
+    if (!response.credential) return;
     try {
-      const result = await googleLogin({
-        token: response.credential,
-      }).unwrap();
-
-      localStorage.setItem("accessToken", result.data.accessToken);
-      localStorage.setItem("refreshToken", result.data.refreshToken);
-
+      const result = await googleLogin({ token: response.credential }).unwrap();
+      saveAuth(result);
       await navigate("/dashboard");
     } catch (err) {
       console.error(err);
