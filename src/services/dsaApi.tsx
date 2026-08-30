@@ -1,6 +1,14 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import {
+  createApi,
+  fetchBaseQuery,
+  type BaseQueryFn,
+  type FetchArgs,
+  type FetchBaseQueryError,
+} from "@reduxjs/toolkit/query/react";
 
 import type { Problem } from "@/pages/DSAPractice/ProblemList/types";
+import { logout as logoutAction } from "@/redux/slices/authSlice";
+import { getAccessToken, setAccessToken, clearAuth } from "@/utils/authMethods";
 import {
   onMutationStartedDefault,
   onQueryStartedDefault,
@@ -45,22 +53,66 @@ interface ProblemsApiResponse {
   };
 }
 
+interface RefreshTokenResponse {
+  success: boolean;
+  message: string;
+  data: {
+    accessToken: string;
+  };
+}
+
+const rawBaseQuery = fetchBaseQuery({
+  baseUrl: apiUrl,
+  credentials: "include",
+
+  prepareHeaders: (headers) => {
+    const token = getAccessToken();
+
+    if (token) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+
+    return headers;
+  },
+});
+
+
+const baseQueryWithReauth: BaseQueryFn<
+  FetchArgs,
+  unknown,
+  FetchBaseQueryError
+> = async (args, api, extraOptions) => {
+  let result = await rawBaseQuery(args, api, extraOptions);
+
+  if (result.error?.status === 401) {
+    const refreshResult = await rawBaseQuery(
+      {
+        url: "/api/auth/refresh-token",
+        method: "POST",
+      },
+      api,
+      extraOptions,
+    );
+
+    if (refreshResult.data) {
+      const { accessToken } = (refreshResult.data as RefreshTokenResponse).data;
+
+      setAccessToken(accessToken);
+
+      result = await rawBaseQuery(args, api, extraOptions);
+    } else {
+      clearAuth();
+      api.dispatch(logoutAction());
+      window.location.href = "/login";
+    }
+  }
+
+  return result;
+};
+
 export const dsaApi = createApi({
   reducerPath: "dsaApi",
-
-  baseQuery: fetchBaseQuery({
-    baseUrl: apiUrl,
-
-    prepareHeaders: (headers) => {
-      const token = localStorage.getItem("accessToken");
-
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      }
-
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithReauth,
 
   tagTypes: ["problems"],
 
@@ -74,7 +126,6 @@ export const dsaApi = createApi({
       providesTags: ["problems"],
       onQueryStarted: onQueryStartedDefault as never,
     }),
-
     updateProblem: builder.mutation<
       ProblemUpdateResponse,
       UpdateRequest<ProblemUpdateData>
@@ -87,7 +138,6 @@ export const dsaApi = createApi({
       invalidatesTags: ["problems"],
       onQueryStarted: onMutationStartedDefault,
     }),
-
     getAllProblemOverviewCount: builder.query<unknown, QueryParams>({
       query: (params) => ({
         url: "/api/problems/overview-count",
@@ -97,7 +147,6 @@ export const dsaApi = createApi({
       providesTags: ["problems"],
       onQueryStarted: onQueryStartedDefault as never,
     }),
-
     getAllProblemTopicBreakdown: builder.query<unknown, QueryParams>({
       query: (params) => ({
         url: "/api/problems/topic-wise-problem",

@@ -1,21 +1,7 @@
-import type { AuthResponse } from "@/services/authApi";
-
-export const saveAuth = (response: AuthResponse) => {
-  const { accessToken, refreshToken, user } = response.data;
-
-  localStorage.setItem("accessToken", accessToken);
-  localStorage.setItem("refreshToken", refreshToken);
-  localStorage.setItem("user", JSON.stringify(user));
-};
-
 export const logout = () => {
   localStorage.removeItem("accessToken");
   localStorage.removeItem("refreshToken");
   localStorage.removeItem("user");
-};
-
-export const getAccessToken = () => {
-  return localStorage.getItem("accessToken");
 };
 
 export const getUser = (): Record<string, unknown> | null => {
@@ -34,4 +20,15 @@ export const getUser = (): Record<string, unknown> | null => {
 
 export const isAuthenticated = () => {
   return !!localStorage.getItem("accessToken");
+};
+
+const ACCESS_TOKEN_KEY = "accessToken";
+
+export const getAccessToken = () => localStorage.getItem(ACCESS_TOKEN_KEY);
+export const setAccessToken = (token: string) =>
+  localStorage.setItem(ACCESS_TOKEN_KEY, token);
+export const clearAuth = () => localStorage.removeItem(ACCESS_TOKEN_KEY);
+
+export const saveAuth = (response: { data: { accessToken: string } }) => {
+  setAccessToken(response.data.accessToken);
 };
