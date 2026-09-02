@@ -76,7 +76,6 @@ const rawBaseQuery = fetchBaseQuery({
   },
 });
 
-
 const baseQueryWithReauth: BaseQueryFn<
   FetchArgs,
   unknown,
@@ -174,5 +173,5 @@ export const {
   useUpdateProblemMutation,
   useGetAllProblemOverviewCountQuery,
   useGetAllProblemrecentProblemsQuery,
-  useLazyGetAllProblemTopicBreakdownQuery,
+  useGetAllProblemTopicBreakdownQuery,
 } = dsaApi;

@@ -21,3 +21,34 @@ export interface Problem {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface ProblemOverviewCount {
+  solved?: number;
+  attempted?: number;
+  bookmarked?: number;
+  review?: number;
+}
+
+export interface ProblemOverviewResponse {
+  data?: ProblemOverviewCount;
+}
+
+export interface TopicBreakdownItem {
+  solved: number;
+  topic: string;
+}
+
+export interface PieChartData {
+  name: string;
+  value: number;
+}
+
+export interface RecentProblemItem {
+  id: string;
+  title: string;
+  slug: string;
+  difficulty: string;
+  bookmarked: boolean;
+  status: string;
+  updatedAt: string;
+}

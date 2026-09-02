@@ -1,14 +1,13 @@
-import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
-import AccountTreeRoundedIcon from "@mui/icons-material/AccountTreeRounded";
-import AssignmentRoundedIcon from "@mui/icons-material/AssignmentRounded";
-import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
-import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
-import CodeRoundedIcon from "@mui/icons-material/CodeRounded";
-import DataObjectRoundedIcon from "@mui/icons-material/DataObjectRounded";
-import FunctionsRoundedIcon from "@mui/icons-material/FunctionsRounded";
+import {
+  CheckCircleRounded as CheckCircleRoundedIcon,
+  AssignmentRounded as AssignmentRoundedIcon,
+  BookmarkRounded as BookmarkRoundedIcon,
+  RateReviewRounded as RateReviewRoundedIcon,
+  RocketLaunchRounded as RocketLaunchRoundedIcon,
+  CodeRounded as CodeRoundedIcon,
+  ChevronRightRounded as ChevronRightRoundedIcon,
+} from "@mui/icons-material";
 import LocalFireDepartmentRoundedIcon from "@mui/icons-material/LocalFireDepartmentRounded";
-import RocketLaunchRoundedIcon from "@mui/icons-material/RocketLaunchRounded";
-import TrackChangesRoundedIcon from "@mui/icons-material/TrackChangesRounded";
 import {
   Box,
   IconButton,
@@ -17,38 +16,52 @@ import {
   useTheme,
 } from "@mui/material";
 
+import type {
+  PieChartData,
+  ProblemOverviewResponse,
+  RecentProblemItem,
+  TopicBreakdownItem,
+} from "../types";
+
 import PieChart from "@/components/ChartComponent/PieChart";
+import {
+  useGetAllProblemOverviewCountQuery,
+  useGetAllProblemrecentProblemsQuery,
+  useGetAllProblemTopicBreakdownQuery,
+} from "@/services/dsaApi";
 import theme from "@/theme/theme";
 
 const ProgressOverview = () => {
   const theme = useTheme();
+  const { data: OverviewCount } = useGetAllProblemOverviewCountQuery({});
+  const overviewData = OverviewCount as ProblemOverviewResponse | undefined;
 
   const stats = [
     {
       title: "Solved",
-      value: "26",
+      value: overviewData?.data?.solved,
       icon: CheckCircleRoundedIcon,
       iconColor: theme.palette.success.main,
       iconBg: theme.palette.success.light,
     },
     {
       title: "Attempted",
-      value: "14",
+      value: overviewData?.data?.attempted,
       icon: AssignmentRoundedIcon,
       iconColor: theme.palette.primary.main,
       iconBg: `${theme.palette.primary.main}12`,
     },
     {
-      title: "Time Spent",
-      value: "12h 45m",
-      icon: AccessTimeRoundedIcon,
+      title: "Boomarked",
+      value: overviewData?.data?.bookmarked,
+      icon: BookmarkRoundedIcon,
       iconColor: theme.palette.primary.main,
       iconBg: `${theme.palette.primary.main}12`,
     },
     {
-      title: "Accuracy",
-      value: "72%",
-      icon: TrackChangesRoundedIcon,
+      title: "Review",
+      value: overviewData?.data?.review,
+      icon: RateReviewRoundedIcon,
       iconColor: theme.palette.warning.main,
       iconBg: theme.palette.warning.light,
     },
@@ -156,7 +169,7 @@ const ProgressOverview = () => {
                   mb: 0.4,
                 }}
               >
-                {stat.value}
+                {stat.value ?? "-"}
               </Typography>
             </Box>
           );
@@ -234,15 +247,15 @@ const ProgressOverview = () => {
 
 const TopicBreakdown = () => {
   const theme = useTheme();
+  const { data: topicData } = useGetAllProblemTopicBreakdownQuery({});
 
-  const topicData = [
-    { name: "Arrays", value: 28 },
-    { name: "Strings", value: 22 },
-    { name: "Linked Lists", value: 18 },
-    { name: "Trees", value: 16 },
-    { name: "Graphs", value: 10 },
-    { name: "Dynamic Programming", value: 6 },
-  ];
+  const chartData: PieChartData[] =
+    (topicData as { data?: TopicBreakdownItem[] } | undefined)?.data?.map(
+      (item) => ({
+        name: item.topic,
+        value: item.solved,
+      }),
+    ) ?? [];
 
   return (
     <Box
@@ -251,13 +264,12 @@ const TopicBreakdown = () => {
         borderRadius: "12px",
         border: `1px solid ${theme.palette.divider}`,
         bgcolor: "white",
-        width:"100%",
-    
+        width: "100%",
       }}
     >
-      <Typography variant="h6-bold">Topic Breakdown</Typography>
+      <Typography variant="h6-bold">Topic Wise Problem (Solved)</Typography>
 
-      <PieChart data={topicData} height={200} showLegend showTooltip />
+      <PieChart data={chartData} height={200} showLegend showTooltip />
     </Box>
   );
 };
@@ -265,28 +277,11 @@ const TopicBreakdown = () => {
 const RecentProblem = () => {
   const theme = useTheme();
 
-  const problems = [
-    {
-      title: "Two Sum",
-      difficulty: "Easy",
-      icon: CodeRoundedIcon,
-    },
-    {
-      title: "Add Two Numbers",
-      difficulty: "Medium",
-      icon: DataObjectRoundedIcon,
-    },
-    {
-      title: "Maximum Subarray",
-      difficulty: "Easy",
-      icon: FunctionsRoundedIcon,
-    },
-    {
-      title: "Kth Largest Element",
-      difficulty: "Hard",
-      icon: AccountTreeRoundedIcon,
-    },
-  ];
+  const { data: recentProblems } = useGetAllProblemrecentProblemsQuery({}) as {
+    data?: { data?: RecentProblemItem[] };
+  };
+
+  const problems: RecentProblemItem[] = recentProblems?.data ?? [];
 
   const getDifficultyStyles = (difficulty: string) => {
     switch (difficulty) {
@@ -349,12 +344,11 @@ const RecentProblem = () => {
 
       <Box>
         {problems.map((problem, index) => {
-          const Icon = problem.icon;
           const difficultyStyles = getDifficultyStyles(problem.difficulty);
 
           return (
             <Box
-              key={problem.title}
+              key={problem.id}
               sx={{
                 display: "flex",
                 alignItems: "center",
@@ -379,7 +373,7 @@ const RecentProblem = () => {
                   color: theme.palette.primary.main,
                 }}
               >
-                <Icon sx={{ fontSize: 18 }} />
+                <CodeRoundedIcon sx={{ fontSize: 18 }} />
               </Box>
 
               <Box

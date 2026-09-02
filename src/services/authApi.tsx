@@ -33,6 +33,7 @@ export interface AuthResponse {
   success: boolean;
   message: string;
   data: {
+    refreshToken: string;
     accessToken: string;
     user: AuthUser;
   };
