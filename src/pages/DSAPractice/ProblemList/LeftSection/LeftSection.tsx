@@ -11,6 +11,7 @@ import {
   Menu,
   MenuItem,
   Pagination,
+  Skeleton,
   Tab,
   Tabs,
   TextField,
@@ -457,8 +458,67 @@ const ProblemCard = ({
           color: theme.palette.black.secondary,
         }}
       >
-        {problem.topics.join(", ")}
+        {problem.topics.length > 0 ? problem.topics.join(", ") : "-"}
       </Typography>
+    </Box>
+  );
+};
+
+const ProblemCardSkeleton = () => {
+  return (
+    <Box
+      sx={{
+        p: 2,
+        border: "1px solid",
+        borderColor: "divider",
+        borderRadius: "10px",
+        bgcolor: "white",
+      }}
+    >
+      {/* Top row */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+        }}
+      >
+        <Skeleton variant="text" width={22} height={28} />
+
+        <Skeleton
+          variant="rounded"
+          width={65}
+          height={28}
+          sx={{ borderRadius: "6px" }}
+        />
+      </Box>
+
+      {/* Title */}
+      <Skeleton variant="text" width="75%" height={30} sx={{ my: 1.5 }} />
+
+      {/* Topics */}
+      <Box sx={{ display: "flex", gap: 0.75 }}>
+        <Skeleton
+          variant="rounded"
+          width={65}
+          height={24}
+          sx={{ borderRadius: "6px" }}
+        />
+
+        <Skeleton
+          variant="rounded"
+          width={85}
+          height={24}
+          sx={{ borderRadius: "6px" }}
+        />
+
+        <Skeleton
+          variant="rounded"
+          width={55}
+          height={24}
+          sx={{ borderRadius: "6px" }}
+        />
+      </Box>
     </Box>
   );
 };
@@ -503,7 +563,7 @@ export const LeftSection = () => {
   const effectiveStatus = tab === 0 ? status : (TAB_STATUS_MAP[tab] ?? "");
 
   const [updateProblem] = useUpdateProblemMutation();
-  const { data: problemsResponse } = useGetAllProblemsQuery({
+  const { data: problemsResponse, isLoading } = useGetAllProblemsQuery({
     topic,
     difficulty,
     status: effectiveStatus,
@@ -823,6 +883,7 @@ export const LeftSection = () => {
               rows={filteredProblems}
               columns={columns}
               theme={theme}
+              loading={isLoading}
             />
           </Box>
         )}
@@ -839,14 +900,18 @@ export const LeftSection = () => {
               gap: 1.5,
             }}
           >
-            {filteredProblems?.map((problem) => (
-              <ProblemCard
-                key={problem._id}
-                problem={problem}
-                theme={theme}
-                onToggleBookmark={handleToggleBookmark}
-              />
-            ))}
+            {isLoading
+              ? Array.from({ length: PAGE_SIZE }).map((_, index) => (
+                  <ProblemCardSkeleton key={index} />
+                ))
+              : filteredProblems.map((problem) => (
+                  <ProblemCard
+                    key={problem._id}
+                    problem={problem}
+                    theme={theme}
+                    onToggleBookmark={handleToggleBookmark}
+                  />
+                ))}
           </Box>
         )}
       </Box>
@@ -870,25 +935,27 @@ export const LeftSection = () => {
             : `Showing ${from} to ${to} of ${totalProblems} problems`}
         </Typography>
 
-        <Pagination
-          page={currentPage}
-          onChange={(_, value) => setPage(value)}
-          count={totalPages}
-          siblingCount={1}
-          boundaryCount={1}
-          shape="rounded"
-          disabled={totalPages <= 1}
-          sx={{
-            "& .MuiPaginationItem-root": {
-              borderRadius: "7px",
-            },
+        {!isLoading && (
+          <Pagination
+            page={currentPage}
+            onChange={(_, value) => setPage(value)}
+            count={totalPages}
+            siblingCount={1}
+            boundaryCount={1}
+            shape="rounded"
+            disabled={totalPages <= 1}
+            sx={{
+              "& .MuiPaginationItem-root": {
+                borderRadius: "7px",
+              },
 
-            "& .Mui-selected": {
-              bgcolor: `${theme.palette.primary.main} !important`,
-              color: `${theme.palette.white.main} !important`,
-            },
-          }}
-        />
+              "& .Mui-selected": {
+                bgcolor: `${theme.palette.primary.main} !important`,
+                color: `${theme.palette.white.main} !important`,
+              },
+            }}
+          />
+        )}
       </Box>
     </Box>
   );
