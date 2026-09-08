@@ -1,9 +1,7 @@
 import {
   AppsRounded as AppsRoundedIcon,
-  BookmarkBorderRounded as BookmarkBorderRoundedIcon,
   CheckCircleRounded as CheckCircleRoundedIcon,
   ChevronRightRounded as ChevronRightRoundedIcon,
-  PlayArrowRounded as PlayArrowRoundedIcon,
 } from "@mui/icons-material";
 import {
   Box,
@@ -15,26 +13,18 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type SetStateAction,
-} from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-import {
-  DIFFICULTY_BREAKDOWN,
-  FILTER_TABS,
-  LEARN_ITEMS,
-  PATTERNS,
-  getColorSet,
-  type Pattern,
-} from "../data";
+import { PATTERNS, getColorSet, type Pattern } from "../data";
 import { CircularGauge, IconBadge, LinearBar } from "../shared";
 import { styles } from "../style";
 
 import PieChart from "@/components/ChartComponent/PieChart";
+import {
+  useGetDifficultyOverviewQuery,
+  useGetLearningOutcomeQuery,
+  useGetPatternWiseProblemsQuery,
+} from "@/services/dsaApi";
 
 const PatternCard = ({
   pattern,
@@ -80,42 +70,85 @@ export const LeftSection = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const [visibleTabs, setVisibleTabs] = useState<string[]>([]);
-  const [activeKey, setActiveKey] = useState(PATTERNS[0]?.key);
+  const [activeKey, setActiveKey] = useState<string>();
   const [overflowTabs, setOverflowTabs] = useState<string[]>([]);
   const [activeFilter, setActiveFilter] = useState("All Patterns");
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
-  const active = useMemo(() => {
-    const pattern = PATTERNS.find((p) => p.key === activeKey) ?? PATTERNS[0];
+  const { data: patternWiseData } = useGetPatternWiseProblemsQuery();
 
-    if (!pattern) {
-      throw new Error("PATTERNS must contain at least one pattern");
-    }
+  const apiPatterns = useMemo(
+    (): Pattern[] =>
+      (patternWiseData?.data.patterns ?? []).map((pattern, index) => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const fallbackPattern = PATTERNS[index % PATTERNS.length]!;
 
-    return pattern;
-  }, [activeKey]);
+        const matchingPattern = PATTERNS.find(
+          (localPattern) => localPattern.name === pattern.name,
+        );
 
-  const activeColors = getColorSet(theme, active?.colorKey);
-  const solved = Math.round((active.percent / 100) * active.count);
+        return {
+          key: pattern.name.toLowerCase().replace(/\s+/g, "-"),
+          name: pattern.name,
+          count: pattern.totalProblems,
+          solved: pattern.solvedProblems,
+          percent: pattern.progress,
+          icon: matchingPattern?.icon ?? fallbackPattern.icon,
+          colorKey: matchingPattern?.colorKey ?? fallbackPattern.colorKey,
+        };
+      }),
+    [patternWiseData],
+  );
+
+  const filteredPatterns =
+    activeFilter === "All Patterns"
+      ? apiPatterns
+      : apiPatterns.filter((pattern) => pattern.name === activeFilter);
+
+  const active = apiPatterns.find((pattern) => pattern.key === activeKey) ??
+    apiPatterns[0] ?? {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      ...PATTERNS[0]!,
+      count: 0,
+      solved: 0,
+      percent: 0,
+    };
+
+  const { data: difficultyData } = useGetDifficultyOverviewQuery(
+    { pattern: active?.name ?? "" },
+    {
+      skip: apiPatterns.length === 0,
+    },
+  );
+
+  const { data: learningOutcomes } = useGetLearningOutcomeQuery(
+    { pattern: active?.name ?? "" },
+    {
+      skip: apiPatterns.length === 0,
+    },
+  );
 
   useEffect(() => {
     const calculateTabs = () => {
-      let usedWidth = 0;
-
       if (!containerRef.current) return;
 
-      const containerWidth = containerRef?.current?.clientWidth;
+      const containerWidth = containerRef.current.clientWidth;
       const availableWidth = containerWidth - 45;
-      const allTabs = ["All Patterns", ...FILTER_TABS];
 
-      const visible: SetStateAction<string[]> = [];
-      const overflow: SetStateAction<string[]> = [];
+      const allTabs = [
+        "All Patterns",
+        ...apiPatterns.map((pattern) => pattern.name),
+      ];
 
       const tabsWithWidths = allTabs.map((label) => ({
         label,
         width:
           label === "All Patterns" ? 125 : Math.max(80, label.length * 8 + 40),
       }));
+
+      const visible: string[] = [];
+      const overflow: string[] = [];
+      let usedWidth = 0;
 
       tabsWithWidths.forEach(({ label, width }) => {
         if (usedWidth + width <= availableWidth) {
@@ -134,7 +167,65 @@ export const LeftSection = () => {
 
     window.addEventListener("resize", calculateTabs);
     return () => window.removeEventListener("resize", calculateTabs);
-  }, []);
+  }, [apiPatterns]);
+
+  const handleButtonClick = (label: string) => {
+    setActiveFilter(label);
+    setAnchorEl(null);
+
+    if (label !== "All Patterns") {
+      const selectedPattern = apiPatterns.find(
+        (pattern) => pattern.name === label,
+      );
+
+      if (selectedPattern) {
+        setActiveKey(selectedPattern.key);
+      }
+    }
+  };
+
+  const difficultyBreakdown = useMemo(() => {
+    if (!difficultyData?.data) return [];
+
+    const raw = difficultyData.data as unknown as {
+      easy: { total: number } | number;
+      medium: { total: number } | number;
+      hard: { total: number } | number;
+    };
+
+    const easy = typeof raw.easy === "number" ? raw.easy : raw.easy.total;
+    const medium =
+      typeof raw.medium === "number" ? raw.medium : raw.medium.total;
+    const hard = typeof raw.hard === "number" ? raw.hard : raw.hard.total;
+
+    const total = easy + medium + hard;
+
+    return [
+      {
+        label: "Easy",
+        count: easy,
+        percent: total ? Math.round((easy / total) * 100) : 0,
+        colorKey: "success" as const,
+      },
+      {
+        label: "Medium",
+        count: medium,
+        percent: total ? Math.round((medium / total) * 100) : 0,
+        colorKey: "warning" as const,
+      },
+      {
+        label: "Hard",
+        count: hard,
+        percent: total ? Math.round((hard / total) * 100) : 0,
+        colorKey: "error" as const,
+      },
+    ];
+  }, [difficultyData]);
+
+  const LearningItems = learningOutcomes?.data?.learningPoints ?? [];
+
+  const activeColors = getColorSet(theme, active?.colorKey);
+  const solved = active?.solved;
 
   return (
     <Box sx={styles.leftMainBox}>
@@ -154,7 +245,7 @@ export const LeftSection = () => {
         {visibleTabs.map((label) => (
           <Button
             key={label}
-            onClick={() => setActiveFilter(label)}
+            onClick={() => handleButtonClick(label)}
             startIcon={
               label === "All Patterns" ? (
                 <AppsRoundedIcon sx={{ fontSize: 14 }} />
@@ -171,7 +262,7 @@ export const LeftSection = () => {
           <>
             <IconButton
               size="small"
-              onClick={(event) => setAnchorEl(event?.currentTarget)}
+              onClick={(event) => setAnchorEl(event.currentTarget)}
               sx={{
                 border: `1px solid ${theme.palette.divider}`,
                 borderRadius: "8px",
@@ -185,15 +276,20 @@ export const LeftSection = () => {
               anchorEl={anchorEl}
               open={Boolean(anchorEl)}
               onClose={() => setAnchorEl(null)}
+              slotProps={{
+                paper: {
+                  sx: {
+                    maxHeight: 250,
+                    mt: 0.5,
+                  },
+                },
+              }}
             >
               {overflowTabs.map((label) => (
                 <MenuItem
                   key={label}
                   selected={activeFilter === label}
-                  onClick={() => {
-                    setActiveFilter(label);
-                    setAnchorEl(null);
-                  }}
+                  onClick={() => handleButtonClick(label)}
                 >
                   {label}
                 </MenuItem>
@@ -204,7 +300,7 @@ export const LeftSection = () => {
       </Box>
 
       <Box sx={styles.allPattern}>
-        {PATTERNS.map((pattern) => (
+        {filteredPatterns.map((pattern) => (
           <PatternCard
             key={pattern.key}
             pattern={pattern}
@@ -225,40 +321,23 @@ export const LeftSection = () => {
         <Box sx={styles.patternOverview}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
             <IconBadge
-              icon={active.icon}
-              color={activeColors.color}
-              bg={activeColors.bg}
+              icon={active?.icon}
+              color={activeColors?.color}
+              bg={activeColors?.bg}
               size={42}
             />
             <Box sx={{ display: "flex", flexDirection: "column" }}>
               <Typography variant="h6-bold">
-                {active.name} Pattern Overview
+                {active?.name} Pattern Overview
               </Typography>
               <Typography
                 variant="body-medium"
                 sx={{ color: theme.palette.text.secondary }}
               >
-                Learn {active.name.toLowerCase()} techniques including
+                Learn {active?.name.toLowerCase()} techniques including
                 traversal, manipulation, and advanced problem solving.
               </Typography>
             </Box>
-          </Box>
-
-          <Box sx={{ display: "flex", gap: 1, flexShrink: 0 }}>
-            <Button
-              variant="outlined"
-              startIcon={<BookmarkBorderRoundedIcon />}
-              sx={styles.buttonStyle}
-            >
-              Bookmark
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={<PlayArrowRoundedIcon />}
-              sx={styles.buttonStyle}
-            >
-              Start Practice
-            </Button>
           </Box>
         </Box>
 
@@ -275,14 +354,9 @@ export const LeftSection = () => {
             </Typography>
 
             <Box sx={styles.chartOuterBox}>
-              <Box
-                sx={{
-                  width: 130,
-                  height: 140,
-                }}
-              >
+              <Box sx={{ width: 130, height: 140 }}>
                 <PieChart
-                  data={DIFFICULTY_BREAKDOWN.map((d) => ({
+                  data={difficultyBreakdown.map((d) => ({
                     name: d.label,
                     value: d.count,
                   }))}
@@ -292,14 +366,10 @@ export const LeftSection = () => {
               </Box>
 
               <Box>
-                {DIFFICULTY_BREAKDOWN.map((d) => (
+                {difficultyBreakdown.map((d) => (
                   <Box
                     key={d.label}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 0.8,
-                    }}
+                    sx={{ display: "flex", alignItems: "center", gap: 0.8 }}
                   >
                     <Box
                       sx={{
@@ -340,18 +410,18 @@ export const LeftSection = () => {
             </Typography>
 
             <CircularGauge
-              value={active.percent}
+              value={active?.percent}
               size={110}
               thickness={9}
               color={theme.palette.success.main}
               sweep={360}
             >
-              <Typography variant="h6-bold">{active.percent}%</Typography>
+              <Typography variant="h6-bold">{active?.percent}%</Typography>
               <Typography
                 variant="caption"
                 sx={{ color: theme.palette.text.secondary }}
               >
-                {solved} / {active.count}
+                {solved} / {active?.count}
               </Typography>
               <Typography
                 variant="caption"
@@ -386,13 +456,17 @@ export const LeftSection = () => {
           </Typography>
 
           <Box sx={styles.learnItemBox}>
-            {LEARN_ITEMS.map((item) => (
+            {LearningItems?.map((item) => (
               <Box
                 key={item}
-                sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                sx={{ display: "flex", alignItems: "start", gap: 1 }}
               >
                 <CheckCircleRoundedIcon
-                  sx={{ fontSize: 18, color: theme.palette.success.main }}
+                  sx={{
+                    fontSize: 18,
+                    color: theme.palette.success.main,
+                    mt: 0.2,
+                  }}
                 />
                 <Typography variant="body2">{item}</Typography>
               </Box>

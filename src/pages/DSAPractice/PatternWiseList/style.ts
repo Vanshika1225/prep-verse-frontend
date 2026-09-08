@@ -56,6 +56,9 @@ export const styles = {
     },
     gap: 2,
     mb: 2.5,
+    maxHeight: 500,
+    overflowY: "auto",
+    pr: 1,
   },
 
   patternOverview: {
