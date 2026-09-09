@@ -16,6 +16,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import { useState } from "react";
 
 import type {
   PieChartData,
@@ -25,6 +26,7 @@ import type {
 } from "../types";
 
 import PieChart from "@/components/ChartComponent/PieChart";
+import ReusableModal from "@/components/ModalBox/ModalBox";
 import NoDataFound from "@/components/NoDataFound/NoDataFound";
 import {
   useGetAllProblemOverviewCountQuery,
@@ -244,6 +246,8 @@ const ProgressOverview = () => {
 const TopicBreakdown = () => {
   const theme = useTheme();
 
+  const [showAllTopics, setShowAllTopics] = useState(false);
+
   const { data: topicData, isLoading } = useGetAllProblemTopicBreakdownQuery(
     {},
   );
@@ -257,59 +261,123 @@ const TopicBreakdown = () => {
     ) ?? [];
 
   return (
-    <Box
-      sx={{
-        p: 2,
-        borderRadius: "12px",
-        border: `1px solid ${theme.palette.divider}`,
-        bgcolor: "white",
-        width: "100%",
-      }}
-    >
-      <Typography
-        variant="h6-bold"
+    <>
+      <Box
         sx={{
-          alignSelf: "flex-start",
-          fontSize: "16px",
+          p: 2,
+          borderRadius: "12px",
+          border: `1px solid ${theme.palette.divider}`,
+          bgcolor: "white",
+          width: "100%",
         }}
       >
-        Topic Wise Problem (Solved)
-      </Typography>
+        <Typography
+          variant="h6-bold"
+          sx={{
+            alignSelf: "flex-start",
+            fontSize: "16px",
+          }}
+        >
+          Topic Wise Problem (Solved)
+        </Typography>
 
-      {isLoading ? (
+        {isLoading ? (
+          <Box
+            sx={{
+              height: 200,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Skeleton
+              variant="rectangular"
+              width={300}
+              height={160}
+              sx={{ borderRadius: 5 }}
+            />
+          </Box>
+        ) : chartData.length === 0 ? (
+          <Box
+            sx={{
+              height: 200,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <NoDataFound
+              noImage={false}
+              message="Data will be visible after solving a problem"
+            />
+          </Box>
+        ) : (
+          <PieChart
+            data={chartData}
+            height={330}
+            showLegend
+            showTooltip
+            legendLimit={10}
+            onViewMore={() => setShowAllTopics(true)}
+          />
+        )}
+      </Box>
+
+      <ReusableModal
+        open={showAllTopics}
+        onClose={() => setShowAllTopics(false)}
+        heading="All Topics"
+        maxWidth="sm"
+      >
         <Box
           sx={{
-            height: 200,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            display: "grid",
+            gridTemplateColumns: {
+              xs: "1fr",
+              sm: "repeat(2, minmax(0, 1fr))",
+            },
+            gap: 1,
           }}
         >
-          <Skeleton
-            variant="rectangular"
-            width={300}
-            height={160}
-            sx={{ borderRadius: 5 }}
-          />
+          {chartData.map((topic) => (
+            <Box
+              key={topic.name}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 1,
+                px: 1.5,
+                py: 1,
+                borderRadius: "8px",
+                bgcolor: theme.palette.action.hover,
+              }}
+            >
+              <Typography
+                variant="body2"
+                sx={{
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {topic.name}
+              </Typography>
+
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: 600,
+                  flexShrink: 0,
+                }}
+              >
+                {topic.value}
+              </Typography>
+            </Box>
+          ))}
         </Box>
-      ) : chartData.length === 0 ? (
-        <Box
-          sx={{
-            height: 200,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <NoDataFound
-            noImage={false}
-            message="Data will be visible aafter solving the problem"
-          />
-        </Box>
-      ) : (
-        <PieChart data={chartData} height={200} showLegend showTooltip />
-      )}
-    </Box>
+      </ReusableModal>
+    </>
   );
 };
 
