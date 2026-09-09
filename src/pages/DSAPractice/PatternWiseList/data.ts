@@ -101,41 +101,23 @@ export const PATTERNS: PatternMeta[] = [
   },
 ];
 
-export const RECOMMENDED = [
-  {
-    title: "Two Pointers",
-    subtitle: "Based on your progress",
-    icon: CodeRounded,
-  },
-  {
-    title: "Prefix Sum",
-    subtitle: "Often asked with Arrays",
-    icon: TrendingUpRounded,
-  },
-  {
-    title: "Matrix",
-    subtitle: "Level up your array skills",
-    icon: GridViewRounded,
-  },
-];
-
 export const QUICK_ACTIONS = [
+  {
+    title: "All Problems",
+    subtitle: "Check all The problem",
+    icon: DescriptionRounded,
+    route: "/practice/problems",
+  },
   {
     title: "Random Practice",
     subtitle: "Practice random questions",
     icon: ShuffleRounded,
-  },
-  {
-    title: "Mock Test",
-    subtitle: "Test your preparation",
-    icon: DescriptionRounded,
+    route: "/practice/random-practice",
   },
   {
     title: "Contest",
     subtitle: "Join coding contests",
     icon: WorkspacePremiumRounded,
+    route: "/practice/contests",
   },
 ];
-
-export const OVERALL_SOLVED = 756;
-export const OVERALL_TOTAL = 1200;

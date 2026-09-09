@@ -1,21 +1,25 @@
-import { ChevronRightRounded as ChevronRightRoundedIcon } from "@mui/icons-material";
-import { Box, Button, Typography, useTheme } from "@mui/material";
-
+// import { ChevronRightRounded as ChevronRightRoundedIcon } from "@mui/icons-material";
 import {
-  getColorSet,
-  OVERALL_SOLVED,
-  OVERALL_TOTAL,
-  PATTERNS,
-  QUICK_ACTIONS,
-  RECOMMENDED,
-} from "../data";
+  ChevronRightRounded as ChevronRightRoundedIcon,
+  TrendingUpRounded,
+} from "@mui/icons-material";
+import { Box, Button, Typography, useTheme } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+
+import { getColorSet, PATTERNS, QUICK_ACTIONS } from "../data";
 import { CircularGauge, IconBadge, LinearBar } from "../shared";
 import { styles } from "../style";
 
-const OVERALL_PERCENT = Math.round((OVERALL_SOLVED / OVERALL_TOTAL) * 100);
+import {
+  useGetPatternWiseProblemsQuery,
+  useGetRecommendedProblemsQuery,
+} from "@/services/dsaApi";
 
 const OverallProgress = () => {
   const theme = useTheme();
+  const { data: patternWiseData } = useGetPatternWiseProblemsQuery();
+
+  const patternData = patternWiseData?.data.overall;
 
   return (
     <Box
@@ -30,13 +34,14 @@ const OverallProgress = () => {
       </Typography>
 
       <CircularGauge
-        value={OVERALL_PERCENT}
+        value={patternData?.progress ?? 0}
         size={140}
         thickness={11}
         color={theme.palette.primary.main}
         sweep={200}
       >
-        <Typography variant="h4-bold">{OVERALL_PERCENT}%</Typography>
+        <Typography variant="h4-bold">{patternData?.progress ?? 0}%</Typography>
+
         <Typography
           variant="body1-medium"
           sx={{ color: theme.palette.text.secondary }}
@@ -49,7 +54,8 @@ const OverallProgress = () => {
         variant="p-medium"
         sx={{ color: theme.palette.text.secondary, mt: -3 }}
       >
-        Solved {OVERALL_SOLVED} / {OVERALL_TOTAL} Problems
+        Solved {patternData?.solvedProblems ?? 0} /{" "}
+        {patternData?.totalProblems ?? 0} Problems
       </Typography>
     </Box>
   );
@@ -57,6 +63,10 @@ const OverallProgress = () => {
 
 const PatternProgress = () => {
   const theme = useTheme();
+
+  const { data: patternWiseData } = useGetPatternWiseProblemsQuery();
+
+  const patternData = patternWiseData?.data.patterns ?? [];
 
   return (
     <Box
@@ -71,6 +81,7 @@ const PatternProgress = () => {
         <Typography variant="h6-bold" sx={styles.headingStyles}>
           Patterns Progress
         </Typography>
+
         <Typography
           variant="body-medium"
           sx={{
@@ -83,18 +94,36 @@ const PatternProgress = () => {
         </Typography>
       </Box>
 
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 1.3 }}>
-        {PATTERNS.slice(0, 5).map((pattern) => {
-          const { color, bg } = getColorSet(theme, pattern.colorKey);
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 1.3,
+        }}
+      >
+        {patternData.slice(0, 5).map((pattern, index) => {
+          const patternInfo = PATTERNS[index];
+
+          const colorKey = patternInfo?.colorKey ?? "primary";
+          const icon = patternInfo?.icon ?? TrendingUpRounded;
+
+          const { color, bg } = getColorSet(theme, colorKey);
+
           return (
             <Box
-              key={pattern.key}
-              sx={{ display: "flex", alignItems: "center", gap: 1 }}
+              key={pattern.name}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
             >
-              <IconBadge icon={pattern.icon} color={color} bg={bg} size={30} />
+              <IconBadge icon={icon} color={color} bg={bg} size={30} />
+
               <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Typography variant="body-medium">{pattern.name}</Typography>
-                <LinearBar percent={pattern.percent} color={color} />
+
+                <LinearBar percent={pattern.progress} color={color} />
               </Box>
             </Box>
           );
@@ -104,9 +133,18 @@ const PatternProgress = () => {
   );
 };
 
-const RecommendedForYou = () => {
+const RecommendedForYou = ({ pattern }: { pattern: string }) => {
   const theme = useTheme();
   const primaryTint = `${theme.palette.primary.main}12`;
+
+  const { data: recommended } = useGetRecommendedProblemsQuery(
+    { pattern },
+    {
+      skip: !pattern,
+    },
+  );
+
+  const recommendedData = recommended?.data ?? [];
 
   return (
     <Box
@@ -121,10 +159,17 @@ const RecommendedForYou = () => {
         Recommended for You
       </Typography>
 
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 2 }}>
-        {RECOMMENDED.map((item) => (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 3,
+          mt: 2,
+        }}
+      >
+        {recommendedData.map((item) => (
           <Box
-            key={item.title}
+            key={item._id}
             sx={{
               display: "flex",
               alignItems: "center",
@@ -134,21 +179,24 @@ const RecommendedForYou = () => {
           >
             <Box sx={styles.flexStyles}>
               <IconBadge
-                icon={item.icon}
+                icon={TrendingUpRounded}
                 color={theme.palette.primary.main}
                 bg={primaryTint}
                 size={34}
               />
+
               <Box sx={{ display: "flex", flexDirection: "column" }}>
                 <Typography variant="p-medium">{item.title}</Typography>
+
                 <Typography
                   variant="body-medium"
                   sx={{ color: theme.palette.text.secondary }}
                 >
-                  {item.subtitle}
+                  {item.difficulty}
                 </Typography>
               </Box>
             </Box>
+
             <Button
               size="small"
               variant="text"
@@ -157,6 +205,7 @@ const RecommendedForYou = () => {
                 fontWeight: 600,
                 minWidth: "auto",
               }}
+              onClick={() => window.open(item.problemLink, "_blank")}
             >
               Start
             </Button>
@@ -169,6 +218,8 @@ const RecommendedForYou = () => {
 
 const QuickAction = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
+
   const primaryTint = `${theme.palette.primary.main}12`;
 
   return (
@@ -184,10 +235,20 @@ const QuickAction = () => {
         Quick Actions
       </Typography>
 
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mt: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 1.5,
+          mt: 2,
+        }}
+      >
         {QUICK_ACTIONS.map((item) => (
           <Box
             key={item.title}
+            onClick={() => {
+              void navigate(item.route);
+            }}
             sx={{
               display: "flex",
               justifyContent: "space-between",
@@ -203,10 +264,12 @@ const QuickAction = () => {
                 bg={primaryTint}
                 size={34}
               />
-              <Box sx={{ display: "Flex", flexDirection: "column" }}>
+
+              <Box sx={{ display: "flex", flexDirection: "column" }}>
                 <Typography variant="p-medium" sx={{ fontWeight: 600 }}>
                   {item.title}
                 </Typography>
+
                 <Typography
                   variant="body-medium"
                   sx={{ color: theme.palette.text.secondary }}
@@ -215,8 +278,12 @@ const QuickAction = () => {
                 </Typography>
               </Box>
             </Box>
+
             <ChevronRightRoundedIcon
-              sx={{ color: theme.palette.text.secondary, fontSize: 20 }}
+              sx={{
+                color: theme.palette.text.secondary,
+                fontSize: 20,
+              }}
             />
           </Box>
         ))}
@@ -225,12 +292,16 @@ const QuickAction = () => {
   );
 };
 
-export const RightSection = () => {
+interface RightSectionProps {
+  pattern: string;
+}
+
+const RightSection = ({ pattern }: RightSectionProps) => {
   return (
     <Box sx={styles.rightSectionContainer}>
       <OverallProgress />
       <PatternProgress />
-      <RecommendedForYou />
+      <RecommendedForYou pattern={pattern} />
       <QuickAction />
     </Box>
   );

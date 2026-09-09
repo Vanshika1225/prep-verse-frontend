@@ -89,6 +89,19 @@ export interface LearningOutcomeResponse {
   };
 }
 
+interface RecommendedProblem {
+  _id: string;
+  title: string;
+  difficulty: string;
+  problemLink: string;
+  slug: string;
+}
+
+interface RecommendedProblemsResponse {
+  success: boolean;
+  data: RecommendedProblem[];
+}
+
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: apiUrl,
   credentials: "include",
@@ -229,9 +242,14 @@ export const dsaApi = createApi({
       onQueryStarted: onQueryStartedDefault as never,
     }),
 
-    getRecommendedProblems: builder.query<unknown, { pattern: string }>({
+    getRecommendedProblems: builder.query<
+      RecommendedProblemsResponse,
+      { pattern: string }
+    >({
       query: ({ pattern }) => ({
-        url: `/api/problems/patternwise/${encodeURIComponent(pattern)}/recommended-questions-for-you`,
+        url: `/api/problems/patternwise/${encodeURIComponent(
+          pattern,
+        )}/recommended-questions-for-you`,
         method: "GET",
       }),
       onQueryStarted: onQueryStartedDefault as never,

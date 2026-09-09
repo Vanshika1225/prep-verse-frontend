@@ -65,7 +65,15 @@ const PatternCard = ({
   );
 };
 
-export const LeftSection = () => {
+interface LeftSectionProps {
+  selectedPattern: string;
+  setSelectedPattern: React.Dispatch<React.SetStateAction<string>>;
+}
+
+export const LeftSection = ({
+  selectedPattern,
+  setSelectedPattern,
+}: LeftSectionProps) => {
   const theme = useTheme();
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -180,6 +188,7 @@ export const LeftSection = () => {
 
       if (selectedPattern) {
         setActiveKey(selectedPattern.key);
+        setSelectedPattern(selectedPattern.name);
       }
     }
   };
@@ -305,7 +314,10 @@ export const LeftSection = () => {
             key={pattern.key}
             pattern={pattern}
             active={pattern.key === activeKey}
-            onClick={() => setActiveKey(pattern.key)}
+            onClick={() => {
+              setActiveKey(pattern.key);
+              setSelectedPattern(pattern.name);
+            }}
           />
         ))}
       </Box>
