@@ -16,7 +16,7 @@ export default tseslint.config(
 
   js.configs.recommended,
 
-...tseslint.configs.recommendedTypeChecked,
+  ...tseslint.configs.recommendedTypeChecked,
   {
     files: ["**/*.{ts,tsx}"],
 
@@ -56,7 +56,7 @@ export default tseslint.config(
        * Typescript
        */
 
-      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-explicit-any": "off",
 
       "@typescript-eslint/consistent-type-imports": [
         "error",

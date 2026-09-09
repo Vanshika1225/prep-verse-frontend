@@ -11,6 +11,7 @@ import LocalFireDepartmentRoundedIcon from "@mui/icons-material/LocalFireDepartm
 import {
   Box,
   IconButton,
+  Skeleton,
   Typography,
   useMediaQuery,
   useTheme,
@@ -24,6 +25,7 @@ import type {
 } from "../types";
 
 import PieChart from "@/components/ChartComponent/PieChart";
+import NoDataFound from "@/components/NoDataFound/NoDataFound";
 import {
   useGetAllProblemOverviewCountQuery,
   useGetAllProblemrecentProblemsQuery,
@@ -33,7 +35,9 @@ import theme from "@/theme/theme";
 
 const ProgressOverview = () => {
   const theme = useTheme();
-  const { data: OverviewCount } = useGetAllProblemOverviewCountQuery({});
+  const { data: OverviewCount, isLoading } = useGetAllProblemOverviewCountQuery(
+    {},
+  );
   const overviewData = OverviewCount as ProblemOverviewResponse | undefined;
 
   const stats = [
@@ -84,27 +88,15 @@ const ProgressOverview = () => {
           mb: 1.5,
         }}
       >
-        <Typography variant="h6-bold">Progress Overview</Typography>
-
-        <Box
-          component="select"
-          defaultValue="This Week"
+        <Typography
+          variant="h6-bold"
           sx={{
-            border: `1px solid ${theme.palette.divider}`,
-            borderRadius: "6px",
-            px: 1,
-            py: 0.6,
-            fontSize: "12px",
-            color: theme.palette.text.primary,
-            backgroundColor: "white",
-            outline: "none",
-            cursor: "pointer",
+            alignSelf: "flex-start",
+            fontSize: "16px",
           }}
         >
-          <option>This Week</option>
-          <option>This Month</option>
-          <option>This Year</option>
-        </Box>
+          Progress Overview
+        </Typography>
       </Box>
 
       <Box
@@ -161,16 +153,20 @@ const ProgressOverview = () => {
                 </Typography>
               </Box>
 
-              <Typography
-                variant="h6-medium"
-                sx={{
-                  fontWeight: 545,
-                  display: "block",
-                  mb: 0.4,
-                }}
-              >
-                {stat.value ?? "-"}
-              </Typography>
+              {isLoading ? (
+                <Skeleton variant="text" width={30} height={28} />
+              ) : (
+                <Typography
+                  variant="h6-medium"
+                  sx={{
+                    fontWeight: 545,
+                    display: "block",
+                    mb: 0.4,
+                  }}
+                >
+                  {stat.value ?? "-"}
+                </Typography>
+              )}
             </Box>
           );
         })}
@@ -247,7 +243,10 @@ const ProgressOverview = () => {
 
 const TopicBreakdown = () => {
   const theme = useTheme();
-  const { data: topicData } = useGetAllProblemTopicBreakdownQuery({});
+
+  const { data: topicData, isLoading } = useGetAllProblemTopicBreakdownQuery(
+    {},
+  );
 
   const chartData: PieChartData[] =
     (topicData as { data?: TopicBreakdownItem[] } | undefined)?.data?.map(
@@ -267,9 +266,49 @@ const TopicBreakdown = () => {
         width: "100%",
       }}
     >
-      <Typography variant="h6-bold">Topic Wise Problem (Solved)</Typography>
+      <Typography
+        variant="h6-bold"
+        sx={{
+          alignSelf: "flex-start",
+          fontSize: "16px",
+        }}
+      >
+        Topic Wise Problem (Solved)
+      </Typography>
 
-      <PieChart data={chartData} height={200} showLegend showTooltip />
+      {isLoading ? (
+        <Box
+          sx={{
+            height: 200,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Skeleton
+            variant="rectangular"
+            width={300}
+            height={160}
+            sx={{ borderRadius: 5 }}
+          />
+        </Box>
+      ) : chartData.length === 0 ? (
+        <Box
+          sx={{
+            height: 200,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <NoDataFound
+            noImage={false}
+            message="Data will be visible aafter solving the problem"
+          />
+        </Box>
+      ) : (
+        <PieChart data={chartData} height={200} showLegend showTooltip />
+      )}
     </Box>
   );
 };
@@ -277,9 +316,11 @@ const TopicBreakdown = () => {
 const RecentProblem = () => {
   const theme = useTheme();
 
-  const { data: recentProblems } = useGetAllProblemrecentProblemsQuery({}) as {
-    data?: { data?: RecentProblemItem[] };
-  };
+  const { data: recentProblems, isLoading } =
+    useGetAllProblemrecentProblemsQuery({}) as {
+      data?: { data?: RecentProblemItem[] };
+      isLoading: boolean;
+    };
 
   const problems: RecentProblemItem[] = recentProblems?.data ?? [];
 
@@ -329,7 +370,15 @@ const RecentProblem = () => {
           mb: 1.5,
         }}
       >
-        <Typography variant="h6-bold">Recent Problems</Typography>
+        <Typography
+          variant="h6-bold"
+          sx={{
+            alignSelf: "flex-start",
+            fontSize: "16px",
+          }}
+        >
+          Recent Problems
+        </Typography>
 
         <Typography
           variant="body1-bold"
@@ -343,38 +392,25 @@ const RecentProblem = () => {
       </Box>
 
       <Box>
-        {problems.map((problem, index) => {
-          const difficultyStyles = getDifficultyStyles(problem.difficulty);
-
-          return (
+        {isLoading ? (
+          Array.from({ length: 5 }).map((_, index) => (
             <Box
-              key={problem.id}
+              key={index}
               sx={{
                 display: "flex",
                 alignItems: "center",
                 gap: 1.2,
                 py: 1.25,
                 borderBottom:
-                  index !== problems.length - 1
-                    ? `1px solid ${theme.palette.divider}`
-                    : "none",
+                  index !== 4 ? `1px solid ${theme.palette.divider}` : "none",
               }}
             >
-              <Box
-                sx={{
-                  width: 34,
-                  height: 34,
-                  minWidth: 34,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderRadius: "8px",
-                  bgcolor: `${theme.palette.primary.main}10`,
-                  color: theme.palette.primary.main,
-                }}
-              >
-                <CodeRoundedIcon sx={{ fontSize: 18 }} />
-              </Box>
+              <Skeleton
+                variant="rounded"
+                width={34}
+                height={34}
+                sx={{ borderRadius: "8px", flexShrink: 0 }}
+              />
 
               <Box
                 sx={{
@@ -382,63 +418,142 @@ const RecentProblem = () => {
                   minWidth: 0,
                 }}
               >
-                <Typography
-                  variant="body-bold"
+                <Skeleton
+                  variant="text"
+                  width="70%"
+                  height={22}
+                  sx={{ mb: 0.2 }}
+                />
+                <Skeleton variant="text" width="35%" height={16} />
+              </Box>
+
+              <Skeleton
+                variant="rounded"
+                width={50}
+                height={22}
+                sx={{ borderRadius: "6px", flexShrink: 0 }}
+              />
+
+              <Skeleton
+                variant="circular"
+                width={24}
+                height={24}
+                sx={{ flexShrink: 0 }}
+              />
+            </Box>
+          ))
+        ) : problems.length === 0 ? (
+          <Box
+            sx={{
+              minHeight: 180,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <NoDataFound
+              noImage={false}
+              message="Data will be visible after solving a problem"
+            />
+          </Box>
+        ) : (
+          problems.map((problem, index) => {
+            const difficultyStyles = getDifficultyStyles(problem.difficulty);
+
+            return (
+              <Box
+                key={problem.id}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.2,
+                  py: 1.25,
+                  borderBottom:
+                    index !== problems.length - 1
+                      ? `1px solid ${theme.palette.divider}`
+                      : "none",
+                }}
+              >
+                <Box
                   sx={{
-                    display: "block",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    mb: 0.2,
+                    width: 34,
+                    height: 34,
+                    minWidth: 34,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "8px",
+                    bgcolor: `${theme.palette.primary.main}10`,
+                    color: theme.palette.primary.main,
                   }}
                 >
-                  {problem.title}
-                </Typography>
+                  <CodeRoundedIcon sx={{ fontSize: 18 }} />
+                </Box>
 
-                <Typography
-                  variant="caption"
+                <Box
+                  sx={{
+                    flex: 1,
+                    minWidth: 0,
+                  }}
+                >
+                  <Typography
+                    variant="body-bold"
+                    sx={{
+                      display: "block",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      mb: 0.2,
+                    }}
+                  >
+                    {problem.title}
+                  </Typography>
+
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: theme.palette.text.secondary,
+                    }}
+                  >
+                    Coding Problem
+                  </Typography>
+                </Box>
+
+                <Box
+                  sx={{
+                    px: 1,
+                    py: 0.4,
+                    borderRadius: "6px",
+                    bgcolor: difficultyStyles.bgcolor,
+                    flexShrink: 0,
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: difficultyStyles.color,
+                      fontWeight: 600,
+                      fontSize: "11px",
+                    }}
+                  >
+                    {problem.difficulty}
+                  </Typography>
+                </Box>
+
+                <IconButton
+                  size="small"
                   sx={{
                     color: theme.palette.text.secondary,
+                    p: 0.25,
+                    flexShrink: 0,
                   }}
                 >
-                  Coding Problem
-                </Typography>
+                  <ChevronRightRoundedIcon sx={{ fontSize: 20 }} />
+                </IconButton>
               </Box>
-
-              <Box
-                sx={{
-                  px: 1,
-                  py: 0.4,
-                  borderRadius: "6px",
-                  bgcolor: difficultyStyles.bgcolor,
-                  flexShrink: 0,
-                }}
-              >
-                <Typography
-                  variant="caption"
-                  sx={{
-                    color: difficultyStyles.color,
-                    fontWeight: 600,
-                    fontSize: "11px",
-                  }}
-                >
-                  {problem.difficulty}
-                </Typography>
-              </Box>
-
-              <IconButton
-                size="small"
-                sx={{
-                  color: theme.palette.text.secondary,
-                  p: 0.25,
-                  flexShrink: 0,
-                }}
-              >
-                <ChevronRightRoundedIcon sx={{ fontSize: 20 }} />
-              </IconButton>
-            </Box>
-          );
-        })}
+            );
+          })
+        )}
       </Box>
     </Box>
   );

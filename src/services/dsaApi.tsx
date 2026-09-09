@@ -37,13 +37,11 @@ interface ProblemUpdateResponse {
 interface ProblemsApiResponse {
   data: {
     problems: Problem[];
-
     filters: {
       topics: string[];
       difficulties: string[];
       statuses: string[];
     };
-
     pagination: {
       totalProblems: number;
       currentPage: number;
@@ -54,11 +52,54 @@ interface ProblemsApiResponse {
 }
 
 interface RefreshTokenResponse {
-  success: boolean;
-  message: string;
   data: {
     accessToken: string;
   };
+}
+
+interface DifficultyOverviewResponse {
+  success: boolean;
+  data: {
+    easy: number;
+    medium: number;
+    hard: number;
+  };
+}
+
+interface PatternWiseResponse {
+  success: boolean;
+  data: {
+    overall: {
+      totalProblems: number;
+      solvedProblems: number;
+      progress: number;
+    };
+    patterns: {
+      name: string;
+      totalProblems: number;
+      solvedProblems: number;
+      progress: number;
+    }[];
+  };
+}
+
+export interface LearningOutcomeResponse {
+  data: {
+    learningPoints: string[];
+  };
+}
+
+interface RecommendedProblem {
+  _id: string;
+  title: string;
+  difficulty: string;
+  problemLink: string;
+  slug: string;
+}
+
+interface RecommendedProblemsResponse {
+  success: boolean;
+  data: RecommendedProblem[];
 }
 
 const rawBaseQuery = fetchBaseQuery({
@@ -81,30 +122,32 @@ const baseQueryWithReauth: BaseQueryFn<
   unknown,
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
-  let result = await rawBaseQuery(args, api, extraOptions);
+  const result = await rawBaseQuery(args, api, extraOptions);
 
-  if (result.error?.status === 401) {
-    const refreshResult = await rawBaseQuery(
-      {
-        url: "/api/auth/refresh-token",
-        method: "POST",
-      },
-      api,
-      extraOptions,
-    );
-
-    if (refreshResult.data) {
-      const { accessToken } = (refreshResult.data as RefreshTokenResponse).data;
-
-      setAccessToken(accessToken);
-
-      result = await rawBaseQuery(args, api, extraOptions);
-    } else {
-      clearAuth();
-      api.dispatch(logoutAction());
-      window.location.href = "/login";
-    }
+  if (result.error?.status !== 401) {
+    return result;
   }
+
+  const refreshResult = await rawBaseQuery(
+    {
+      url: "/api/auth/refresh-token",
+      method: "POST",
+    },
+    api,
+    extraOptions,
+  );
+
+  if (refreshResult.data) {
+    const { accessToken } = (refreshResult.data as RefreshTokenResponse).data;
+
+    setAccessToken(accessToken);
+
+    return rawBaseQuery(args, api, extraOptions);
+  }
+
+  clearAuth();
+  api.dispatch(logoutAction());
+  window.location.href = "/login";
 
   return result;
 };
@@ -112,7 +155,6 @@ const baseQueryWithReauth: BaseQueryFn<
 export const dsaApi = createApi({
   reducerPath: "dsaApi",
   baseQuery: baseQueryWithReauth,
-
   tagTypes: ["problems"],
 
   endpoints: (builder) => ({
@@ -125,6 +167,7 @@ export const dsaApi = createApi({
       providesTags: ["problems"],
       onQueryStarted: onQueryStartedDefault as never,
     }),
+
     updateProblem: builder.mutation<
       ProblemUpdateResponse,
       UpdateRequest<ProblemUpdateData>
@@ -137,6 +180,7 @@ export const dsaApi = createApi({
       invalidatesTags: ["problems"],
       onQueryStarted: onMutationStartedDefault,
     }),
+
     getAllProblemOverviewCount: builder.query<unknown, QueryParams>({
       query: (params) => ({
         url: "/api/problems/overview-count",
@@ -146,6 +190,7 @@ export const dsaApi = createApi({
       providesTags: ["problems"],
       onQueryStarted: onQueryStartedDefault as never,
     }),
+
     getAllProblemTopicBreakdown: builder.query<unknown, QueryParams>({
       query: (params) => ({
         url: "/api/problems/topic-wise-problem",
@@ -165,6 +210,50 @@ export const dsaApi = createApi({
       providesTags: ["problems"],
       onQueryStarted: onQueryStartedDefault as never,
     }),
+
+    getPatternWiseProblems: builder.query<PatternWiseResponse, void>({
+      query: () => ({
+        url: "/api/problems/patternwise",
+        method: "GET",
+      }),
+      providesTags: ["problems"],
+      onQueryStarted: onQueryStartedDefault as never,
+    }),
+
+    getDifficultyOverview: builder.query<
+      DifficultyOverviewResponse,
+      { pattern: string }
+    >({
+      query: ({ pattern }) => ({
+        url: `/api/problems/patternwise/${encodeURIComponent(pattern)}/difficulty`,
+        method: "GET",
+      }),
+      onQueryStarted: onQueryStartedDefault as never,
+    }),
+
+    getLearningOutcome: builder.query<
+      LearningOutcomeResponse,
+      { pattern: string }
+    >({
+      query: ({ pattern }) => ({
+        url: `/api/problems/patternwise/${encodeURIComponent(pattern)}/learn`,
+        method: "GET",
+      }),
+      onQueryStarted: onQueryStartedDefault as never,
+    }),
+
+    getRecommendedProblems: builder.query<
+      RecommendedProblemsResponse,
+      { pattern: string }
+    >({
+      query: ({ pattern }) => ({
+        url: `/api/problems/patternwise/${encodeURIComponent(
+          pattern,
+        )}/recommended-questions-for-you`,
+        method: "GET",
+      }),
+      onQueryStarted: onQueryStartedDefault as never,
+    }),
   }),
 });
 
@@ -174,4 +263,8 @@ export const {
   useGetAllProblemOverviewCountQuery,
   useGetAllProblemrecentProblemsQuery,
   useGetAllProblemTopicBreakdownQuery,
+  useGetPatternWiseProblemsQuery,
+  useGetDifficultyOverviewQuery,
+  useGetLearningOutcomeQuery,
+  useGetRecommendedProblemsQuery,
 } = dsaApi;
