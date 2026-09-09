@@ -12,7 +12,6 @@ const PatternWiseList = () => {
     <Box sx={{ p: 0.7 }}>
       <Box sx={styles.container}>
         <LeftSection
-          selectedPattern={selectedPattern}
           setSelectedPattern={setSelectedPattern}
         />
         <RightSection pattern={selectedPattern} />

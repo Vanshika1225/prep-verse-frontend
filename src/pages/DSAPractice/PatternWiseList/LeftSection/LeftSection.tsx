@@ -66,12 +66,10 @@ const PatternCard = ({
 };
 
 interface LeftSectionProps {
-  selectedPattern: string;
   setSelectedPattern: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export const LeftSection = ({
-  selectedPattern,
   setSelectedPattern,
 }: LeftSectionProps) => {
   const theme = useTheme();
