@@ -1,11 +1,9 @@
 import { Box, Skeleton, type Theme } from "@mui/material";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 
-import type { Problem } from "@/pages/DSAPractice/ProblemList/types";
-
-interface ProblemTableProps {
-  rows: Problem[] | [];
-  columns: GridColDef<Problem>[];
+interface ProblemTableProps<T extends { id: string }> {
+  rows: T[];
+  columns: GridColDef<T>[];
   theme: Theme;
   loading?: boolean;
 }
@@ -13,11 +11,11 @@ interface ProblemTableProps {
 const SKELETON_ROW_COUNT = 10;
 const ROW_HEIGHT = 78;
 
-const TableSkeleton = ({
+const TableSkeleton = <T extends { id: string }>({
   columns,
   theme,
 }: {
-  columns: GridColDef<Problem>[];
+  columns: GridColDef<T>[];
   theme: Theme;
 }) => {
   return (
@@ -75,18 +73,18 @@ const TableSkeleton = ({
   );
 };
 
-const MuiTableComponent = ({
+const MuiTableComponent = <T extends { id: string }>({
   rows,
   columns,
   theme,
   loading = false,
-}: ProblemTableProps) => {
+}: ProblemTableProps<T>) => {
   return (
     <DataGrid
       rows={loading ? [] : rows}
       columns={columns}
       loading={loading}
-      getRowId={(row) => row._id}
+      getRowId={(row) => row.id}
       hideFooter
       disableRowSelectionOnClick
       disableColumnResize

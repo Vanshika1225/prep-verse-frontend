@@ -8,8 +8,8 @@ interface CustomSelectProps {
   }[];
   onChange: (value: string) => void;
   label: string;
-  minWidth: number;
-  width: number;
+  minWidth: string | number;
+  width: string | number;
 }
 
 const SelectComponent = ({
