@@ -15,7 +15,6 @@ import ForgotPassword from "@/pages/Authentication/ForgotPassword/ForgotPassword
 import ResetPassword from "@/pages/Authentication/ForgotPassword/ResetPassword/ResetPassword";
 import ResetSucessScreen from "@/pages/Authentication/ForgotPassword/ResetPassword/ResetSucessScreen";
 import Contests from "@/pages/DSAPractice/Contests/Contests";
-import MockTests from "@/pages/DSAPractice/MockTests/MockTests";
 import PatternWiseList from "@/pages/DSAPractice/PatternWiseList/PatternWiseList";
 import ProblemList from "@/pages/DSAPractice/ProblemList/ProblemList";
 import RandomPractice from "@/pages/DSAPractice/RandomPractice/RandomPractice";
@@ -81,10 +80,7 @@ export const router = createBrowserRouter([
                 path: "contests",
                 element: <Contests />,
               },
-              {
-                path: "mock-tests",
-                element: <MockTests />,
-              },
+            
             ],
           },
           {

@@ -7,12 +7,7 @@ declare module "@mui/material/styles" {
       main100: string;
       secondary: string;
     };
-    warning: {
-      main: string;
-      light: string;
-      main100: string;
-      main200: string;
-    };
+
     white: {
       main: string;
       light: string;
@@ -21,15 +16,12 @@ declare module "@mui/material/styles" {
       main300: string;
       main400: string;
     };
+
     sidebar: {
       main: string;
       main100: string;
       hover: string;
       active: string;
-    };
-    error: {
-      main: string;
-      light: string;
     };
   }
 
@@ -39,12 +31,7 @@ declare module "@mui/material/styles" {
       main100: string;
       secondary: string;
     };
-    warning: {
-      main: string;
-      light: string;
-      main100: string;
-      main200: string;
-    };
+
     white?: {
       main: string;
       light: string;
@@ -53,19 +40,25 @@ declare module "@mui/material/styles" {
       main300: string;
       main400: string;
     };
+
     sidebar?: {
       main: string;
       main100: string;
       hover: string;
       active: string;
     };
-    error: {
-      main: string;
-      light: string;
-    };
+  }
+
+  interface PaletteColor {
+    main100?: string;
+    main200?: string;
+  }
+
+  interface SimplePaletteColorOptions {
+    main100?: string;
+    main200?: string;
   }
 }
-
 declare module "@mui/material/styles" {
   interface TypographyVariants {
     "h1-bold": React.CSSProperties;

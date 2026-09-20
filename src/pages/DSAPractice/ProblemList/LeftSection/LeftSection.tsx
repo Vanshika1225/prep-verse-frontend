@@ -880,8 +880,11 @@ export const LeftSection = () => {
         {view === "list" && (
           <Box sx={{ height: "100%", width: "100%", minHeight: 0 }}>
             <MuiTableComponent
-              rows={filteredProblems}
-              columns={columns}
+              rows={filteredProblems.map((problem) => ({
+                ...problem,
+                id: problem._id,
+              }))}
+              columns={columns as unknown as GridColDef<{ id: string }>[]}
               theme={theme}
               loading={isLoading}
             />

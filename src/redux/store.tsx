@@ -4,6 +4,7 @@ import { configureStore } from "@reduxjs/toolkit";
 
 import { authApi } from "@/services/authApi";
 import { dsaApi } from "@/services/dsaApi";
+import { randomPracticeApi } from "@/services/randomPracticeApi";
 
 export const store = configureStore({
   reducer: {
@@ -12,9 +13,14 @@ export const store = configureStore({
 
     [authApi.reducerPath]: authApi.reducer,
     [dsaApi.reducerPath]: dsaApi.reducer,
+    [randomPracticeApi.reducerPath]: randomPracticeApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(authApi.middleware,dsaApi.middleware),
+    getDefaultMiddleware().concat(
+      authApi.middleware,
+      dsaApi.middleware,
+      randomPracticeApi.middleware,
+    ),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
