@@ -180,10 +180,7 @@ const Sidebar = () => {
                 <Box key={item.text}>
                   <ListItemButton
                     onClick={() => setOpenPractice(!openPractice)}
-                    sx={practiceItemStyle(
-                      theme,
-                      pathname.startsWith("/practice"),
-                    )}
+                    sx={practiceItemStyle(theme)}
                   >
                     <ListItemIcon>{item.icon}</ListItemIcon>
 
