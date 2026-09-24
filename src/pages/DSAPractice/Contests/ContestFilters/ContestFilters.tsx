@@ -1,11 +1,9 @@
 import {
-  FilterAltOutlined,
   KeyboardArrowDownRounded,
   SearchRounded,
 } from "@mui/icons-material";
 import {
   Box,
-  Button,
   InputAdornment,
   MenuItem,
   Select,
@@ -113,29 +111,7 @@ const ContestFilters = ({ value, onChange }: Props) => {
         <MenuItem value="medium">1–2 Hours</MenuItem>
         <MenuItem value="long">2+ Hours</MenuItem>
       </Select>
-
-      <Button
-        variant="outlined"
-        startIcon={<FilterAltOutlined sx={{ fontSize: 18 }} />}
-        sx={{
-          height: CONTROL_HEIGHT,
-          px: 2.25,
-          bgcolor: theme.palette.white.main,
-          color: theme.palette.appText.main,
-          borderColor: theme.palette.border.main,
-          borderRadius: "6px",
-          fontSize: 13,
-          fontWeight: 500,
-          textTransform: "none",
-          "&:hover": {
-            bgcolor: theme.palette.primary.main100,
-            borderColor: theme.palette.white.main200,
-          },
-        }}
-      >
-        Filters
-      </Button>
-    </Box>
+      </Box>
   );
 };
 

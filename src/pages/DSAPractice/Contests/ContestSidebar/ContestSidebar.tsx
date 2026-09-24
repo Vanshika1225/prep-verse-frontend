@@ -119,7 +119,7 @@ const Donut = ({ value }: { value: number }) => {
           textAlign: "center",
         }}
       >
-        <Box>
+        <Box sx={{ display: "flex", flexDirection: "column" }}>
           <Typography
             variant="h5-bold"
             sx={{
