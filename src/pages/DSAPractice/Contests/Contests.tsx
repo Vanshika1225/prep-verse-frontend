@@ -1,9 +1,23 @@
-import React from 'react'
+import { Box } from "@mui/material";
 
-const Contests = () => {
+import ContestHeader from "./ContestHeader/ContestHeader";
+import ContestSidebar from "./ContestSidebar/ContestSidebar";
+import ContestTabs from "./ContestTabs/ContestTabs";
+import RecentCompleted from "./RecentCompleted/RecentCompleted";
+import { mainGrid } from "./style";
+
+export default function Contest() {
   return (
-    <div>Contests</div>
-  )
-}
+    <Box sx={{ p: 0.5 }}>
+      <Box sx={mainGrid}>
+        <Box sx={{ minWidth: 0 }}>
+          <ContestHeader />
+          <ContestTabs />
+          <RecentCompleted />
+        </Box>
 
-export default Contests
+        <ContestSidebar />
+      </Box>
+    </Box>
+  );
+}

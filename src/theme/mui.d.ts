@@ -23,6 +23,17 @@ declare module "@mui/material/styles" {
       hover: string;
       active: string;
     };
+
+    border: {
+      main: string;
+    };
+
+    appText: {
+      main: string;
+      secondary: string;
+      muted: string;
+      label: string;
+    };
   }
 
   interface PaletteOptions {
@@ -46,6 +57,17 @@ declare module "@mui/material/styles" {
       main100: string;
       hover: string;
       active: string;
+    };
+
+    border?: {
+      main: string;
+    };
+
+    appText?: {
+      main: string;
+      secondary: string;
+      muted: string;
+      label: string;
     };
   }
 
