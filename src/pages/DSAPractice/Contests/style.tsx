@@ -175,7 +175,7 @@ export const contestFiletrWrapper = {
   gridTemplateColumns: {
     xs: "1fr",
     sm: "1fr 1fr",
-    md: "minmax(0, 1.9fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.1fr) auto",
+    md: "minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr)",
   },
   gap: "14px",
   pt: "20px",

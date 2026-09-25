@@ -40,7 +40,7 @@ const ContestTabs = () => {
         ? (live?.contests ?? [])
         : (completed?.data.contests ?? []);
 
-  const contests = filterContests(
+  const fileteredContests = filterContests(
     source.map((contest) => ({
       ...contest,
       type: contest.type ?? "",
@@ -49,6 +49,8 @@ const ContestTabs = () => {
     })),
     filters,
   );
+
+  const contests = fileteredContests.slice(0, 4);
 
   const loading =
     tab === 0 ? upcomingLoading : tab === 1 ? liveLoading : completedLoading;

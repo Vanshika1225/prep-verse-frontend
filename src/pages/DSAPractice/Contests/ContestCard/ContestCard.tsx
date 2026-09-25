@@ -10,13 +10,11 @@ import {
   cardNameWrapper,
   contestCardInnerBox,
   contestCardOuterBox,
-  levelStyle,
   livebUtton,
 } from "../style";
 import type { Contest } from "../types";
 
 import {
-  formatCompact,
   formatDate,
   formatDuration,
   formatTime,
@@ -27,7 +25,7 @@ interface Props {
   live?: boolean;
 }
 
-const COLUMNS = "minmax(0, 1fr) 82px 84px 150px 112px 74px";
+const COLUMNS = "3fr 1.2fr 1.2fr 1.3fr 0.2fr";
 
 const Column = ({
   label,
@@ -97,7 +95,6 @@ const MetaLine = ({
 
 const ContestCard = ({ contest, live }: Props) => {
   const theme = useTheme();
-  const level = levelStyle(theme, contest.level);
 
   return (
     <Box
@@ -155,38 +152,9 @@ const ContestCard = ({ contest, live }: Props) => {
         </Box>
       </Box>
 
+      <Column label="Start Time">{formatTime(contest.startTime)}</Column>
+      <Column label="End Time">{formatTime(contest.endTime)}</Column>
       <Column label="Duration">{formatDuration(contest.duration)}</Column>
-
-      <Column label="Problems">{contest.problems ?? "-"}</Column>
-
-      <Column label="Level">
-        {contest.level ? (
-          <Box
-            component="span"
-            sx={{
-              ...level,
-              border: "1px solid",
-              borderRadius: "4px",
-              px: "9px",
-              height: 22,
-              display: "inline-flex",
-              alignItems: "center",
-              fontSize: 11,
-              fontWeight: 500,
-              whiteSpace: "nowrap",
-            }}
-          >
-            {contest.level}
-          </Box>
-        ) : (
-          "-"
-        )}
-      </Column>
-
-      <Column label="Participants">
-        {formatCompact(contest.participants)}
-      </Column>
-
       <Button
         variant="contained"
         disableElevation

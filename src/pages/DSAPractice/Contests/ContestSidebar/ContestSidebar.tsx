@@ -4,8 +4,6 @@ import {
   ArrowUpwardRounded,
   EmojiEventsOutlined,
   InsightsRounded,
-  KeyboardArrowDownRounded,
-  LanguageRounded,
   LightbulbOutlined,
 } from "@mui/icons-material";
 import { Box, Typography } from "@mui/material";
@@ -15,7 +13,6 @@ import { parseYMD } from "../ContestsUtils";
 import {
   card,
   chartBoxStyle,
-  contestWrapperStyle,
   deltaStyle,
   iconStyle,
   ratingCardStyle,
@@ -26,25 +23,6 @@ import { MONTHS, type RatingCardProps } from "../types";
 import BarChart from "@/components/ChartComponent/BarChart";
 import { useGetContestAnalyticsQuery } from "@/services/contestsApi";
 import { formatDate, formatNumber } from "@/utils/DateUtilityFunctions";
-
-const PeriodPill = () => {
-  const theme = useTheme();
-
-  return (
-    <Box
-      component="span"
-      sx={{
-        ...contestWrapperStyle,
-        bgcolor: theme.palette.white.main,
-        border: `1px solid ${theme.palette.border.main}`,
-        color: theme.palette.appText.secondary,
-      }}
-    >
-      This Month
-      <KeyboardArrowDownRounded sx={{ fontSize: 15 }} />
-    </Box>
-  );
-};
 
 const CardHeader = ({ title }: { title: string }) => {
   const theme = useTheme();
@@ -65,8 +43,6 @@ const CardHeader = ({ title }: { title: string }) => {
       >
         {title}
       </Typography>
-
-      <PeriodPill />
     </Box>
   );
 };
@@ -353,27 +329,6 @@ const ContestSidebar = () => {
                 >
                   {formatDate(ratings.highestRatingDate, false)}
                 </Typography>
-              ) : undefined
-            }
-          />
-
-          <RatingCard
-            fullWidth
-            inline
-            icon={
-              <LanguageRounded
-                sx={{ fontSize: 18, color: theme.palette.primary.light }}
-              />
-            }
-            iconBg={theme.palette.secondary.main100}
-            label="Global Rank"
-            value={
-              ratings.globalRank ? `#${formatNumber(ratings.globalRank)}` : "-"
-            }
-            footer={
-              ratings.globalRankChange !== null &&
-              ratings.globalRankChange !== undefined ? (
-                <Delta value={ratings.globalRankChange} />
               ) : undefined
             }
           />

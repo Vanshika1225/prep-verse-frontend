@@ -1,7 +1,4 @@
-import {
-  KeyboardArrowDownRounded,
-  SearchRounded,
-} from "@mui/icons-material";
+import { KeyboardArrowDownRounded, SearchRounded } from "@mui/icons-material";
 import {
   Box,
   InputAdornment,
@@ -88,19 +85,6 @@ const ContestFilters = ({ value, onChange }: Props) => {
 
       <Select
         displayEmpty
-        value={value.level}
-        onChange={(e) => set({ level: e.target.value })}
-        IconComponent={KeyboardArrowDownRounded}
-        sx={selectSx}
-      >
-        <MenuItem value="">All Levels</MenuItem>
-        <MenuItem value="Easy">Easy</MenuItem>
-        <MenuItem value="Medium">Medium</MenuItem>
-        <MenuItem value="Hard">Hard</MenuItem>
-      </Select>
-
-      <Select
-        displayEmpty
         value={value.duration}
         onChange={(e) => set({ duration: e.target.value })}
         IconComponent={KeyboardArrowDownRounded}
@@ -111,7 +95,7 @@ const ContestFilters = ({ value, onChange }: Props) => {
         <MenuItem value="medium">1–2 Hours</MenuItem>
         <MenuItem value="long">2+ Hours</MenuItem>
       </Select>
-      </Box>
+    </Box>
   );
 };
 

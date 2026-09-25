@@ -63,7 +63,9 @@ const RecentCompleted = () => {
               <Box sx={{ display: "flex", gap: "10px" }}>
                 <PlatformLogo platform={contest.platform} size={24} />
 
-                <Box sx={{ minWidth: 0 }}>
+                <Box
+                  sx={{ minWidth: 0, display: "flex", flexDirection: "column" }}
+                >
                   <Typography
                     variant="body1-bold"
                     sx={{
