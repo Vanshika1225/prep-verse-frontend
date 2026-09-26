@@ -45,7 +45,7 @@ const ContestTabs = () => {
       ...contest,
       type: contest.type ?? "",
       phase: contest.phase ?? "",
-      registrationUrl: contest.registrationUrl ?? "",
+      registrationUrl: contest.url ?? "",
     })),
     filters,
   );

@@ -158,7 +158,7 @@ const ContestCard = ({ contest, live }: Props) => {
       <Button
         variant="contained"
         disableElevation
-        href={contest.registrationUrl ?? contest.url}
+        href={contest.url}
         target="_blank"
         rel="noopener noreferrer"
         sx={{
