@@ -4,7 +4,6 @@ import {
   Dialog,
   DialogContent,
   IconButton,
-  Typography,
   useTheme,
 } from "@mui/material";
 import type { ReactNode } from "react";
@@ -12,7 +11,7 @@ import type { ReactNode } from "react";
 interface ReusableModalProps {
   open: boolean;
   onClose: () => void;
-  heading: string;
+  heading: ReactNode;
   children: ReactNode;
   actions?: ReactNode;
   maxWidth?: "xs" | "sm" | "md" | "lg";
@@ -48,14 +47,12 @@ const ReusableModal = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          px: 3,
+          px: 2,
           py: 2,
           borderBottom: `1px solid ${theme.palette.divider}`,
         }}
       >
-        <Typography variant="h6" sx={{ fontWeight: 700 }}>
-          {heading}
-        </Typography>
+        <Box sx={{ flex: 1 }}>{heading}</Box>
 
         <IconButton onClick={onClose} size="small">
           <CloseRoundedIcon />

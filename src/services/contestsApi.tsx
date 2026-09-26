@@ -17,19 +17,10 @@ export interface Contest {
   platform: "Codeforces" | "CodeChef" | "LeetCode";
   externalId: string;
   name: string;
-  type: string | null;
-  phase: string | null;
   duration: number;
   startTime: string;
   endTime: string;
   url: string;
-  registrationUrl: string | null;
-
-  // new (optional, shown in the redesigned row)
-  badge?: "Official" | "Rated";
-  problems?: number;
-  level?: string; // "Mixed" | "Easy - Medium" | "Medium - Hard"
-  participants?: number;
 }
 
 interface UpcomingContestsResponse {

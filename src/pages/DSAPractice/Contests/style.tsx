@@ -233,3 +233,102 @@ export const livebUtton = (theme: Theme) => ({
   fontSize: 10.5,
   fontWeight: 700,
 });
+
+export const upcommingContestModalLabel = {
+  borderRadius: "6px",
+  px: "12px",
+  height: "30px",
+  fontSize: "px",
+  fontWeight: "px",
+  cursor: "pointer",
+};
+
+export const selectStyle = {
+  height: "38px",
+  minWidth: "250px",
+  borderRadius: "6px",
+  fontSize: "13px",
+};
+
+export const contestInModalWrapper = {
+  display: "grid",
+  alignItems: "center",
+  px: "16px",
+  py: "12px",
+  gap: "8px",
+
+  "&:last-of-type": {
+    borderBottom: 0,
+  },
+};
+
+export const paginationInModal = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  mt: "14px",
+};
+
+export const outerBoxSidebarModal = (theme: Theme) => ({
+  width: 260,
+  flexShrink: 0,
+  borderLeft: `1px solid ${theme.palette.divider}`,
+  bgcolor: theme.palette.white.main300,
+  p: 2,
+  display: "flex",
+  flexDirection: "column",
+  overflowY: "auto",
+});
+
+export const innerBoxSidebarModal = {
+  width: "100%",
+  height: 130,
+  objectFit: "contain",
+  display: "block",
+  mb: "10px",
+};
+
+export const chipStyleWRapper = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: "8px",
+  mb: "18px",
+};
+
+export const recentCompletedBox = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  mb: "12px",
+};
+
+export const contestGrid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+  gap: "12px",
+};
+
+export const rankGrid = {
+  display: "grid",
+  gridTemplateColumns: "1.7fr 1fr",
+  mt: "22px",
+  mb: "16px",
+};
+
+export const dateIconBox = {
+  width: "36px",
+  height: "36px",
+  flexShrink: 0,
+  borderRadius: "12px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+export const recentModalWrapper = {
+  borderRadius: "16px",
+  p: "24px",
+  display: "flex",
+  alignItems: "flex-start",
+  gap: "20px",
+};

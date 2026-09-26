@@ -18,6 +18,12 @@ export interface Contest {
   problems?: number;
   level?: string;
   participants?: number;
+  ratingAfter: number | null;
+  ratingBefore: number | null;
+  rank: number | null;
+  attendedAt: string;
+  ratingChange: number | null;
+  contestId: number | null;
 }
 
 export interface ContestAnalytics {
@@ -98,3 +104,29 @@ export const MONTHS = [
   "Nov",
   "Dec",
 ];
+
+export const DURATIONS: {
+  label: string;
+  value: ContestFilterState["duration"];
+}[] = [
+  { label: "All", value: "" },
+  { label: "Under 1 Hour", value: "short" },
+  { label: "1-2 Hours", value: "medium" },
+  { label: "2+ Hours", value: "long" },
+];
+
+export const PLATFORMS = ["All", "LeetCode", "Codeforces", "CodeChef"];
+
+export interface upcommingContest {
+  open: boolean;
+  onClose: () => void;
+  contests: Contest[];
+  filters: ContestFilterState;
+  onFiltersChange: (next: ContestFilterState) => void;
+  page: number;
+  totalPages: number;
+  totalCount: number;
+  onPageChange: (page: number) => void;
+  onSelectContest?: (contest: Contest) => void;
+  title: string;
+}

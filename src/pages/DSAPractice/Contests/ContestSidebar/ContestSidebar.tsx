@@ -18,7 +18,7 @@ import {
   ratingCardStyle,
   statBoxWrapper,
 } from "../style";
-import { MONTHS, type RatingCardProps } from "../types";
+import { type RatingCardProps } from "../types";
 
 import BarChart from "@/components/ChartComponent/BarChart";
 import { useGetContestAnalyticsQuery } from "@/services/contestsApi";
@@ -245,7 +245,7 @@ const ContestSidebar = () => {
     const { day, month } = parseYMD(item.date);
 
     return {
-      name: `${day} ${MONTHS[month]}`,
+      name: `${day}/${String(month + 1).padStart(2, "0")}`,
       value: item.count,
     };
   });
