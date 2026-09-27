@@ -10,6 +10,7 @@ import UpcomingContestsModal from "../UpcommingContestModal/UpcommingContestModa
 import { card } from "../style";
 import { defaultContestFilters, type ContestFilterState } from "../types";
 
+import NoDataFound from "@/components/NoDataFound/NoDataFound";
 import {
   useGetCompletedContestsQuery,
   useGetLiveContestsQuery,
@@ -149,15 +150,9 @@ const ContestTabs = () => {
             <ContestCardSkeleton key={i} />
           ))
         ) : contests.length === 0 ? (
-          <Typography
-            sx={{
-              py: 6,
-              textAlign: "center",
-              color: theme.palette.appText.muted,
-            }}
-          >
-            No contests found
-          </Typography>
+          <NoDataFound
+            message={`There are no ${title.toLowerCase()} available right now.`}
+          />
         ) : (
           contests.map((contest) => (
             <ContestCard key={contest._id} contest={contest} live={tab === 1} />

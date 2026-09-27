@@ -21,6 +21,7 @@ import {
 import { type RatingCardProps } from "../types";
 
 import BarChart from "@/components/ChartComponent/BarChart";
+import NoDataFound from "@/components/NoDataFound/NoDataFound";
 import { useGetContestAnalyticsQuery } from "@/services/contestsApi";
 import { formatDate, formatNumber } from "@/utils/DateUtilityFunctions";
 
@@ -87,6 +88,7 @@ const Donut = ({
         viewBox={`0 0 ${size} ${size}`}
         style={{ transform: "rotate(-90deg)", display: "block" }}
       >
+        {/* Empty ring */}
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -96,16 +98,19 @@ const Donut = ({
           strokeWidth={stroke}
         />
 
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke={theme.palette.primary.main}
-          strokeWidth={stroke}
-          strokeLinecap="round"
-          strokeDasharray={`${circumference * RING_PROGRESS} ${circumference}`}
-        />
+        {/* Progress ring only when value > 0 */}
+        {value > 0 && (
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke={theme.palette.primary.main}
+            strokeWidth={stroke}
+            strokeLinecap="round"
+            strokeDasharray={`${circumference * RING_PROGRESS} ${circumference}`}
+          />
+        )}
       </svg>
 
       <Box
@@ -156,39 +161,27 @@ const Stat = ({
 
   return (
     <Box sx={statBoxWrapper}>
-      {loading ? (
-        <>
-          <Skeleton
-            variant="text"
-            width={80}
-            height={18}
-            sx={{ transform: "none" }}
-          />
-          <Skeleton
-            variant="text"
-            width={45}
-            height={22}
-            sx={{ transform: "none", mt: "2px" }}
-          />
-        </>
-      ) : (
-        <>
-          <Typography
-            variant="body1-medium"
-            sx={{ color: theme.palette.appText.muted }}
-          >
-            {label}
-          </Typography>
+      <Typography
+        variant="body1-medium"
+        sx={{ color: theme.palette.appText.muted }}
+      >
+        {label}
+      </Typography>
 
-          <Typography
-            variant="body1-bold"
-        sx={{
-          color: theme.palette.appText.main,
-        }}
-          >
-            {value}
-          </Typography>
-        </>
+      {loading ? (
+        <Skeleton
+          variant="text"
+          width={45}
+          height={22}
+          sx={{ transform: "none", mt: "2px" }}
+        />
+      ) : (
+        <Typography
+          variant="body1-bold"
+          sx={{ color: theme.palette.appText.main }}
+        >
+          {value}
+        </Typography>
       )}
     </Box>
   );
@@ -310,21 +303,21 @@ const ContestSidebar = () => {
     return null;
   }
 
-  const { performance, ratings, activity } = data?.data ?? {
-    performance: {
-      participated: 0,
-      won: 0,
-      top10Finishes: 0,
-      winRate: 0,
-    },
-    ratings: {
-      contestRating: 0,
-      highestRating: 0,
-      latestRatingChange: null,
-      highestRatingDate: null,
-    },
-    activity: [],
+  const performance = data?.data?.performance ?? {
+    participated: 0,
+    won: 0,
+    top10Finishes: 0,
+    winRate: 0,
   };
+
+  const ratings = data?.data?.ratings ?? {
+    contestRating: 0,
+    highestRating: 0,
+    latestRatingChange: null,
+    highestRatingDate: null,
+  };
+
+  const activity = data?.data?.activity ?? [];
 
   const Card = { ...card, p: "16px" };
 
@@ -447,6 +440,8 @@ const ContestSidebar = () => {
               height={220}
               sx={{ borderRadius: "8px" }}
             />
+          ) : activityChartData.length === 0 ? (
+            <NoDataFound message="Your contest activity will appear here after you participate in contests." />
           ) : (
             <BarChart
               data={activityChartData}
