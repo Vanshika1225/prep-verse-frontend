@@ -4,8 +4,10 @@ import {
   TrendingUpRounded,
 } from "@mui/icons-material";
 import { Box, Button, Typography, useTheme } from "@mui/material";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import PatternsModal from "../ViewAllModal/ViewALlModal";
 import { getColorSet, PATTERNS, QUICK_ACTIONS } from "../data";
 import { CircularGauge, IconBadge, LinearBar } from "../shared";
 import { styles } from "../style";
@@ -63,73 +65,93 @@ const OverallProgress = () => {
 
 const PatternProgress = () => {
   const theme = useTheme();
+  const [modalOpen, setModalOpen] = useState(false);
 
   const { data: patternWiseData } = useGetPatternWiseProblemsQuery();
 
   const patternData = patternWiseData?.data.patterns ?? [];
 
   return (
-    <Box
-      sx={{
-        p: 2,
-        borderRadius: "12px",
-        border: `1px solid ${theme.palette.divider}`,
-        bgcolor: theme.palette.white.main,
-      }}
-    >
-      <Box sx={styles.patternProgressBox}>
-        <Typography variant="h6-bold" sx={styles.headingStyles}>
-          Patterns Progress
-        </Typography>
-
-        <Typography
-          variant="body-medium"
-          sx={{
-            color: theme.palette.primary.main,
-            fontWeight: 600,
-            cursor: "pointer",
-          }}
-        >
-          View All
-        </Typography>
-      </Box>
-
+    <>
       <Box
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 1.3,
+          p: 2,
+          borderRadius: "12px",
+          border: `1px solid ${theme.palette.divider}`,
+          bgcolor: theme.palette.white.main,
         }}
       >
-        {patternData.slice(0, 5).map((pattern, index) => {
-          const patternInfo = PATTERNS[index];
+        <Box sx={styles.patternProgressBox}>
+          <Typography variant="h6-bold" sx={styles.headingStyles}>
+            Patterns Progress
+          </Typography>
 
-          const colorKey = patternInfo?.colorKey ?? "primary";
-          const icon = patternInfo?.icon ?? TrendingUpRounded;
+          <Typography
+            variant="body-medium"
+            onClick={() => setModalOpen(true)}
+            sx={{
+              color: theme.palette.primary.main,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            View All
+          </Typography>
+        </Box>
 
-          const { color, bg } = getColorSet(theme, colorKey);
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 1.3,
+          }}
+        >
+          {patternData.slice(0, 5).map((pattern, index) => {
+            const patternInfo = PATTERNS[index];
 
-          return (
-            <Box
-              key={pattern.name}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-              }}
-            >
-              <IconBadge icon={icon} color={color} bg={bg} size={30} />
+            const colorKey = patternInfo?.colorKey ?? "primary";
+            const icon = patternInfo?.icon ?? TrendingUpRounded;
 
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography variant="body-medium">{pattern.name}</Typography>
+            const { color, bg } = getColorSet(theme, colorKey);
 
-                <LinearBar percent={pattern.progress} color={color} />
+            return (
+              <Box
+                key={pattern.name}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <IconBadge
+                  icon={icon}
+                  color={color}
+                  bg={bg}
+                  size={30}
+                />
+
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography variant="body-medium">
+                    {pattern.name}
+                  </Typography>
+
+                  <LinearBar
+                    percent={pattern.progress}
+                    color={color}
+                  />
+                </Box>
               </Box>
-            </Box>
-          );
-        })}
+            );
+          })}
+        </Box>
       </Box>
-    </Box>
+
+      <PatternsModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        patterns={patternData}
+      />
+    </>
   );
 };
 

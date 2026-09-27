@@ -144,4 +144,22 @@ export const styles = {
     flexDirection: "column",
     gap: 2,
   },
+  modalBoxWrapper: {
+    display: "grid",
+    gridTemplateColumns: {
+      xs: "1fr",
+      sm: "repeat(2, 1fr)",
+    },
+    gap: 1.5,
+    maxHeight: "60vh",
+    overflowY: "auto",
+    pr: 0.5,
+  },
+  innerModalBoxStyle: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 1,
+    mb: 1.2,
+  },
 };
