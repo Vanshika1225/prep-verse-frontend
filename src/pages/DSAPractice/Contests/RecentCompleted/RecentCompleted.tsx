@@ -42,29 +42,7 @@ const RecentCompleted = () => {
   const [selectedContest, setSelectedContest] = useState<Contest | null>(null);
 
   const contests: Contest[] = data?.data.recentContests ?? [];
-
-  // if (!isLoading && !contests.length) {
-  //   return (
-  //     <Box sx={{ mt: 3 }}>
-  //       <Box sx={recentCompletedBox}>
-  //         <Typography
-  //           variant="h6-bold"
-  //           sx={{ color: theme.palette.appText.main }}
-  //         >
-  //           Recent Completed Contests
-  //         </Typography>
-  //       </Box>
-
-  //       <Box sx={card}>
-  //         <NoDataFound
-  //           noImage
-  //           message="Your completed contests will appear here once you participate in a contest."
-  //         />
-  //       </Box>
-  //     </Box>
-  //   );
-  // }
-
+  
   return (
     <>
       <Box sx={{ mt: 3 }}>
@@ -236,7 +214,7 @@ const RecentCompleted = () => {
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: "1fr 1fr",
+              gridTemplateColumns: { md: "1fr 1fr", xs: "1fr" },
               gap: 1.5,
               mb: 3,
             }}

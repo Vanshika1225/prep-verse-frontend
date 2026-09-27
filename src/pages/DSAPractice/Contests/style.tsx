@@ -107,7 +107,10 @@ export const ratingCardStyle = {
   borderRadius: "8px",
   p: "12px 14px",
   display: "grid",
-  gridTemplateColumns: "30px minmax(0, 1fr)",
+  gridTemplateColumns: {
+    sm: "1fr",
+    md: "30px minmax(0, 1fr)",
+  },
   columnGap: "10px",
   alignItems: "center",
 };
@@ -178,8 +181,9 @@ export const contestFiletrWrapper = {
     md: "minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr)",
   },
   gap: "14px",
-  pt: "20px",
-  pb: "15px",
+  paddingTop: "20px",
+  paddingBottom: "15px",
+  paddingRight: "20px",
 };
 
 export const contestCardOuterBox = {
@@ -245,7 +249,8 @@ export const upcommingContestModalLabel = {
 
 export const selectStyle = {
   height: "38px",
-  minWidth: "250px",
+  width: "100%",
+  minWidth: 0,
   borderRadius: "6px",
   fontSize: "13px",
 };
@@ -265,16 +270,29 @@ export const contestInModalWrapper = {
 export const paginationInModal = {
   display: "flex",
   justifyContent: "space-between",
-  alignItems: "center",
+  alignItems: { xs: "flex-start", sm: "center" },
+  flexDirection: { xs: "column", sm: "row" },
+  gap: "12px",
   mt: "14px",
 };
 
 export const outerBoxSidebarModal = (theme: Theme) => ({
-  width: 260,
+  width: { xs: "100%", md: 260 },
   flexShrink: 0,
-  borderLeft: `1px solid ${theme.palette.divider}`,
+
+  borderLeft: {
+    xs: 0,
+    md: `1px solid ${theme.palette.divider}`,
+  },
+
+  borderTop: {
+    xs: `1px solid ${theme.palette.divider}`,
+    md: 0,
+  },
+
   bgcolor: theme.palette.white.main300,
   p: 2,
+
   display: "flex",
   flexDirection: "column",
   overflowY: "auto",
@@ -282,7 +300,7 @@ export const outerBoxSidebarModal = (theme: Theme) => ({
 
 export const innerBoxSidebarModal = {
   width: "100%",
-  height: 130,
+  height: { xs: 100, md: 130 },
   objectFit: "contain",
   display: "block",
   mb: "10px",

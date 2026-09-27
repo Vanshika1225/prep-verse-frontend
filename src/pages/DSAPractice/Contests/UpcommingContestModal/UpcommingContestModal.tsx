@@ -12,6 +12,7 @@ import {
   Select,
   TextField,
   Typography,
+  useMediaQuery,
   useTheme,
 } from "@mui/material";
 import { useState } from "react";
@@ -99,6 +100,7 @@ const UpcomingContestsModal = ({
   title,
 }: upcommingContest) => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [draftState, setDraftState] = useState({
     open,
@@ -212,7 +214,8 @@ const UpcomingContestsModal = ({
       <Box
         sx={{
           display: "flex",
-          maxHeight: "70vh",
+          flexDirection: { xs: "column", md: "row" },
+          // maxHeight: "70vh",
         }}
       >
         <Box
@@ -224,7 +227,12 @@ const UpcomingContestsModal = ({
         >
           <Box
             sx={{
-              display: "flex",
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                sm: "minmax(0, 1fr) 1fr",
+                md: "minmax(0, 1fr) 200px 200px",
+              },
               gap: "10px",
               mb: 2,
             }}
@@ -305,13 +313,14 @@ const UpcomingContestsModal = ({
             sx={{
               border: `1px solid ${theme.palette.border.main}`,
               borderRadius: "10px",
-              overflow: "hidden",
             }}
           >
             <Box
               sx={{
                 display: "grid",
                 gridTemplateColumns: COLUMNS,
+                minWidth: { xs: "700px", md: "auto" },
+                overflow: "auto",
                 px: "16px",
                 py: "10px",
                 borderBottom: `1px solid ${theme.palette.divider}`,
@@ -343,6 +352,7 @@ const UpcomingContestsModal = ({
                   sx={{
                     ...contestInModalWrapper,
                     gridTemplateColumns: COLUMNS,
+                    minWidth: { xs: "700px", md: "auto" },
 
                     cursor: onSelectContest ? "pointer" : "default",
                     borderBottom: `1px solid ${theme.palette.divider}`,
@@ -367,7 +377,7 @@ const UpcomingContestsModal = ({
                         variant="body1-bold"
                         sx={{
                           color: theme.palette.appText.main,
-                          whiteSpace: "nowrap",
+                          whiteSpace: "wrap",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                         }}
@@ -497,116 +507,118 @@ const UpcomingContestsModal = ({
           </Box>
         </Box>
 
-        <Box sx={outerBoxSidebarModal}>
-          <Box
-            component="img"
-            src={contestTipImage}
-            alt="Contest illustration"
-            sx={innerBoxSidebarModal}
-          />
+        {!isMobile && (
+          <Box sx={outerBoxSidebarModal}>
+            <Box
+              component="img"
+              src={contestTipImage}
+              alt="Contest illustration"
+              sx={innerBoxSidebarModal}
+            />
 
-          <Typography
-            variant="body-bold"
-            sx={{
-              color: theme.palette.appText.main,
-              mb: "14px",
-            }}
-          >
-            Filters
-          </Typography>
+            <Typography
+              variant="body-bold"
+              sx={{
+                color: theme.palette.appText.main,
+                mb: "14px",
+              }}
+            >
+              Filters
+            </Typography>
 
-          <Typography
-            variant="body1-medium"
-            sx={{
-              color: theme.palette.appText.label,
-              mb: "8px",
-            }}
-          >
-            Platform
-          </Typography>
+            <Typography
+              variant="body1-medium"
+              sx={{
+                color: theme.palette.appText.label,
+                mb: "8px",
+              }}
+            >
+              Platform
+            </Typography>
 
-          <Box sx={chipStyleWRapper}>
-            {PLATFORMS.map((platform) => {
-              const value = platform === "All" ? "" : platform;
+            <Box sx={chipStyleWRapper}>
+              {PLATFORMS.map((platform) => {
+                const value = platform === "All" ? "" : platform;
 
-              return (
+                return (
+                  <Chip
+                    key={platform}
+                    label={platform}
+                    active={draft.platform === value}
+                    onClick={() =>
+                      setDraft({
+                        ...draft,
+                        platform: value,
+                      })
+                    }
+                  />
+                );
+              })}
+            </Box>
+
+            <Typography
+              variant="body1-medium"
+              sx={{
+                color: theme.palette.appText.label,
+                mb: "8px",
+              }}
+            >
+              Duration
+            </Typography>
+
+            <Box sx={chipStyleWRapper}>
+              {DURATIONS.map((duration) => (
                 <Chip
-                  key={platform}
-                  label={platform}
-                  active={draft.platform === value}
+                  key={duration.label}
+                  label={duration.label}
+                  active={draft.duration === duration.value}
                   onClick={() =>
                     setDraft({
                       ...draft,
-                      platform: value,
+                      duration: duration.value,
                     })
                   }
                 />
-              );
-            })}
+              ))}
+            </Box>
+
+            <Button
+              variant="contained"
+              disableElevation
+              onClick={applyFilters}
+              sx={{
+                height: 40,
+                borderRadius: "8px",
+                textTransform: "none",
+                fontWeight: 600,
+                bgcolor: theme.palette.primary.main,
+
+                "&:hover": {
+                  bgcolor: theme.palette.primary.dark,
+                },
+
+                mb: "10px",
+              }}
+            >
+              Apply Filters
+            </Button>
+
+            <Button
+              variant="outlined"
+              onClick={clearAll}
+              sx={{
+                height: 40,
+                borderRadius: "8px",
+                textTransform: "none",
+                fontWeight: 600,
+                color: theme.palette.appText.main,
+                borderColor: theme.palette.border.main,
+              }}
+            >
+              Clear All
+            </Button>
           </Box>
-
-          <Typography
-            variant="body1-medium"
-            sx={{
-              color: theme.palette.appText.label,
-              mb: "8px",
-            }}
-          >
-            Duration
-          </Typography>
-
-          <Box sx={chipStyleWRapper}>
-            {DURATIONS.map((duration) => (
-              <Chip
-                key={duration.label}
-                label={duration.label}
-                active={draft.duration === duration.value}
-                onClick={() =>
-                  setDraft({
-                    ...draft,
-                    duration: duration.value,
-                  })
-                }
-              />
-            ))}
-          </Box>
-
-          <Button
-            variant="contained"
-            disableElevation
-            onClick={applyFilters}
-            sx={{
-              height: 40,
-              borderRadius: "8px",
-              textTransform: "none",
-              fontWeight: 600,
-              bgcolor: theme.palette.primary.main,
-
-              "&:hover": {
-                bgcolor: theme.palette.primary.dark,
-              },
-
-              mb: "10px",
-            }}
-          >
-            Apply Filters
-          </Button>
-
-          <Button
-            variant="outlined"
-            onClick={clearAll}
-            sx={{
-              height: 40,
-              borderRadius: "8px",
-              textTransform: "none",
-              fontWeight: 600,
-              color: theme.palette.appText.main,
-              borderColor: theme.palette.border.main,
-            }}
-          >
-            Clear All
-          </Button>
-        </Box>
+        )}
       </Box>
     </ReusableModal>
   );
