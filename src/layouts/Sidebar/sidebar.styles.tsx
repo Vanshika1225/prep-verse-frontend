@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import type { Theme } from "@mui/material";
 
 export const menuItemStyle = (theme: Theme, active = false) => ({
@@ -19,8 +20,8 @@ export const menuItemStyle = (theme: Theme, active = false) => ({
   },
 });
 
-export const practiceItemStyle = (theme: Theme, active = false) => ({
-  bgcolor:  "transparent",
+export const practiceItemStyle = (theme: Theme) => ({
+  bgcolor: "transparent",
 
   borderRadius: "8px",
   color: theme.palette.white.main,

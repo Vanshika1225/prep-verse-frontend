@@ -39,7 +39,12 @@ const BarChart = ({
         <RechartsBarChart data={data}>
           {showGrid && <CartesianGrid strokeDasharray="3 3" />}
 
-          <XAxis dataKey="name" />
+          <XAxis
+            dataKey="name"
+            // tickLine={false}
+            axisLine={false}
+            interval={0}
+          />
 
           <YAxis />
 

@@ -16,14 +16,15 @@ export default tseslint.config(
 
   js.configs.recommended,
 
-  ...tseslint.configs.recommendedTypeChecked,
+  ...tseslint.configs.recommended,
+
   {
     files: ["**/*.{ts,tsx}"],
 
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
-        project: "./tsconfig.app.json", // or "./tsconfig.json"
+        project: "./tsconfig.app.json",
         tsconfigRootDir: import.meta.dirname,
         ecmaVersion: "latest",
         sourceType: "module",

@@ -1,8 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { alpha, createTheme, darken } from "@mui/material";
 
 declare module "@mui/material/Button" {
@@ -20,11 +15,13 @@ const colors = {
     light: "#8B6CFF",
     dark: "#5838E5",
     main100: "#F5F1FF",
+    main200: "#d9cdfb",
   },
 
   secondary: {
     main: "#A78BFA",
     light: "#F5F1FF",
+    main100: "#f1ebff",
   },
 
   success: {
@@ -36,12 +33,14 @@ const colors = {
     main: "#F59E0B",
     light: "#FEF3C7",
     main100: "#B45309",
-    main200:"#92400E"
+    main200: "#92400E",
   },
 
   error: {
     main: "#EF4444",
     light: "#FEE2E2",
+    main100: "#ffecec",
+    main200: "#ffcaca",
   },
 
   sidebar: {
@@ -68,6 +67,13 @@ const colors = {
 
   border: {
     main: "#E5E7EB",
+  },
+
+  appText: {
+    main: "#14142b",
+    secondary: "#4b4b63",
+    muted: "#6b6b85",
+    label: "#8b8ba3",
   },
 };
 
@@ -304,8 +310,8 @@ const Theme = createTheme({
         {
           props: { variant: "outlined" },
           style: ({ ownerState }: any) => {
-            const colorKey = ownerState.color || "primary";
-            const colorValue = buttonColors[colorKey] || colors.primary.main;
+            const colorKey = ownerState.color ?? "primary";
+            const colorValue = buttonColors[colorKey] ?? colors.primary.main;
 
             return {
               backgroundColor: "transparent",
@@ -326,8 +332,8 @@ const Theme = createTheme({
         {
           props: { variant: "outlined" },
           style: ({ ownerState }: any) => {
-            const colorKey = ownerState.color || "primary";
-            const colorValue = buttonColors[colorKey] || colors.primary.main;
+            const colorKey = ownerState.color ?? "primary";
+            const colorValue = buttonColors[colorKey] ?? colors.primary.main;
 
             return {
               backgroundColor: "transparent",
@@ -347,8 +353,8 @@ const Theme = createTheme({
         {
           props: { variant: "borderless" },
           style: ({ ownerState }: any) => {
-            const colorKey = ownerState.color || "primary";
-            const colorValue = buttonColors[colorKey] || colors.primary.main;
+            const colorKey = ownerState.color ?? "primary";
+            const colorValue = buttonColors[colorKey] ?? colors.primary.main;
 
             return {
               backgroundColor: "transparent",
@@ -365,8 +371,8 @@ const Theme = createTheme({
         {
           props: { variant: "rounded" },
           style: ({ ownerState }: any) => {
-            const colorKey = ownerState.color || "primary";
-            const colorValue = buttonColors[colorKey] || colors.primary.main;
+            const colorKey = ownerState.color ?? "primary";
+            const colorValue = buttonColors[colorKey] ?? colors.primary.main;
 
             return {
               borderRadius: "999px",
