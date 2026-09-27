@@ -34,6 +34,7 @@ const ContestFilters = ({ value, onChange }: Props) => {
       sx={{
         ...contestFiletrWrapper,
         borderBottom: `1px solid ${theme.palette.divider}`,
+        mb: 2,
       }}
     >
       <TextField

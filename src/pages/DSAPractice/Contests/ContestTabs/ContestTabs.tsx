@@ -142,13 +142,12 @@ const ContestTabs = () => {
         <Tab label="Completed" disableRipple />
       </Tabs>
 
-      {/* Main screen filters */}
       <ContestFilters value={filters} onChange={setFilters} />
 
       <Typography
         variant="h6-bold"
         sx={{
-          mt: "14px",
+          mt: "20px",
           mb: "14px",
           color: theme.palette.appText.main,
         }}
