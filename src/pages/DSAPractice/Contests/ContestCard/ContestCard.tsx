@@ -102,6 +102,7 @@ const ContestCard = ({ contest, live }: Props) => {
         ...contestCardOuterBox,
         gridTemplateColumns: { xs: "1fr 1fr", md: COLUMNS },
         borderTop: `1px solid ${theme.palette.divider}`,
+        mt: 2,
       }}
     >
       <Box sx={contestCardInnerBox}>

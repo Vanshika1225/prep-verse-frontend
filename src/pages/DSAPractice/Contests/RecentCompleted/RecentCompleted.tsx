@@ -5,6 +5,7 @@ import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
 import { Box, Button, Typography, useTheme } from "@mui/material";
 import { useState } from "react";
 
+import RecentCompletedSkeleton from "../LoadingSkeletonComponents/RecentCompletedLoading";
 import PlatformLogo from "../PlatformLogo";
 import {
   card,
@@ -32,9 +33,11 @@ interface ContestAnalyticsResponse {
 const RecentCompleted = () => {
   const theme = useTheme();
 
-  const { data } = useGetContestAnalyticsQuery() as {
+  const { data, isLoading } = useGetContestAnalyticsQuery() as {
     data?: ContestAnalyticsResponse;
+    isLoading: boolean;
   };
+
   const [selectedContest, setSelectedContest] = useState<Contest | null>(null);
 
   const contests: Contest[] = data?.data.recentContests ?? [];
@@ -58,102 +61,108 @@ const RecentCompleted = () => {
         </Box>
 
         <Box sx={contestGrid}>
-          {contests.slice(0, 4).map((contest) => {
-            const change = contest.ratingChange;
-            const positive = change !== null && change > 0;
+          {isLoading
+            ? Array.from({ length: 4 }).map((_, index) => (
+                <RecentCompletedSkeleton key={index} />
+              ))
+            : contests.slice(0, 4).map((contest) => {
+                const change = contest.ratingChange;
+                const positive = change !== null && change > 0;
 
-            return (
-              <Box
-                key={contest.contestId}
-                sx={{ ...card, p: "14px 13px 12px" }}
-              >
-                <Box sx={{ display: "flex", gap: "10px" }}>
-                  <PlatformLogo platform={contest.platform} size={24} />
-
+                return (
                   <Box
-                    sx={{
-                      minWidth: 0,
-                      display: "flex",
-                      flexDirection: "column",
-                    }}
+                    key={contest.contestId}
+                    sx={{ ...card, p: "14px 13px 12px" }}
                   >
-                    <Typography
-                      variant="body1-bold"
+                    <Box sx={{ display: "flex", gap: "10px" }}>
+                      <PlatformLogo platform={contest.platform} size={24} />
+
+                      <Box
+                        sx={{
+                          minWidth: 0,
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
+                      >
+                        <Typography
+                          variant="body1-bold"
+                          sx={{
+                            lineHeight: "16px",
+                            color: theme.palette.appText.main,
+                            mt: "4px",
+                          }}
+                        >
+                          {contest.name}
+                        </Typography>
+
+                        <Typography
+                          variant="body1-medium"
+                          sx={{
+                            color: theme.palette.appText.label,
+                            mt: "8px",
+                          }}
+                        >
+                          {formatDate(contest.attendedAt, false)}
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    <Box sx={rankGrid}>
+                      <Box>
+                        <Typography variant="body1-medium" sx={labelSx}>
+                          Rank
+                        </Typography>
+
+                        <Typography sx={valueSx}>
+                          {contest.rank === null
+                            ? "-"
+                            : formatNumber(contest.rank)}
+                        </Typography>
+                      </Box>
+
+                      <Box>
+                        <Typography variant="body1-medium" sx={labelSx}>
+                          Rating Change
+                        </Typography>
+
+                        <Typography
+                          sx={{
+                            ...valueSx,
+                            color:
+                              change === null
+                                ? theme.palette.appText.main
+                                : positive
+                                  ? theme.palette.success.main
+                                  : theme.palette.error.main,
+                          }}
+                        >
+                          {change === null
+                            ? "-"
+                            : `${change > 0 ? "+" : ""}${Math.round(change)}`}
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      size="medium"
+                      onClick={() => setSelectedContest(contest)}
                       sx={{
-                        lineHeight: "16px",
-                        color: theme.palette.appText.main,
-                        mt: "4px",
+                        height: 32,
+                        color: theme.palette.primary.main,
+                        borderColor: theme.palette.border.main,
+                        "&:hover": {
+                          bgcolor: theme.palette.primary.main100,
+                          borderColor: theme.palette.primary.main200,
+                        },
                       }}
                     >
-                      {contest.name}
-                    </Typography>
-
-                    <Typography
-                      variant="body1-medium"
-                      sx={{
-                        color: theme.palette.appText.label,
-                        mt: "8px",
-                      }}
-                    >
-                      {formatDate(contest.attendedAt, false)}
-                    </Typography>
+                      View Details
+                    </Button>
                   </Box>
-                </Box>
-
-                <Box sx={rankGrid}>
-                  <Box>
-                    <Typography variant="body1-medium" sx={labelSx}>
-                      Rank
-                    </Typography>
-
-                    <Typography sx={valueSx}>
-                      {contest.rank === null ? "-" : formatNumber(contest.rank)}
-                    </Typography>
-                  </Box>
-
-                  <Box>
-                    <Typography variant="body1-medium" sx={labelSx}>
-                      Rating Change
-                    </Typography>
-
-                    <Typography
-                      sx={{
-                        ...valueSx,
-                        color:
-                          change === null
-                            ? theme.palette.appText.main
-                            : positive
-                              ? theme.palette.success.main
-                              : theme.palette.error.main,
-                      }}
-                    >
-                      {change === null
-                        ? "-"
-                        : `${change > 0 ? "+" : ""}${Math.round(change)}`}
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  size="medium"
-                  onClick={() => setSelectedContest(contest)}
-                  sx={{
-                    height: 32,
-                    color: theme.palette.primary.main,
-                    borderColor: theme.palette.border.main,
-                    "&:hover": {
-                      bgcolor: theme.palette.primary.main100,
-                      borderColor: theme.palette.primary.main200,
-                    },
-                  }}
-                >
-                  View Details
-                </Button>
-              </Box>
-            );
-          })}
+                );
+              })}
         </Box>
       </Box>
 

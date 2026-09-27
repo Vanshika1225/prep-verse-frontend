@@ -5,6 +5,7 @@ import { useState } from "react";
 import ContestCard from "../ContestCard/ContestCard";
 import ContestFilters from "../ContestFilters/ContestFilters";
 import { filterContests } from "../ContestsUtils";
+import ContestCardSkeleton from "../LoadingSkeletonComponents/ContestDataLoading";
 import UpcomingContestsModal from "../UpcommingContestModal/UpcommingContestModal";
 import { card } from "../style";
 import { defaultContestFilters, type ContestFilterState } from "../types";
@@ -21,19 +22,14 @@ const ContestTabs = () => {
   const theme = useTheme();
 
   const [tab, setTab] = useState(0);
-
-  // Filters for main contest screen
+  const [modalPage, setModalPage] = useState(1);
+  const [modalOpen, setModalOpen] = useState(false);
   const [filters, setFilters] = useState<ContestFilterState>(
     defaultContestFilters,
   );
-
-  // Separate filters for modal
   const [modalFilters, setModalFilters] = useState<ContestFilterState>(
     defaultContestFilters,
   );
-
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalPage, setModalPage] = useState(1);
 
   const { data: upcoming, isLoading: upcomingLoading } =
     useGetUpcomingContestsQuery();
@@ -58,13 +54,9 @@ const ContestTabs = () => {
     registrationUrl: contest.url ?? "",
   })) as Parameters<typeof filterContests>[0];
 
-  // Filters for main screen
   const filteredContests = filterContests(contestsForFiltering, filters);
-
-  // Only show first 4 contests on main screen
   const contests = filteredContests.slice(0, 4);
 
-  // Separate filtering for modal
   const modalFilteredContests = filterContests(
     contestsForFiltering,
     modalFilters,
@@ -96,14 +88,10 @@ const ContestTabs = () => {
     setTab(value);
     setModalOpen(false);
     setModalPage(1);
-
-    // Reset modal filters when switching tab
     setModalFilters(defaultContestFilters);
   };
 
   const handleOpenModal = () => {
-    // Take a copy of the current main-screen filters.
-    // After this, modal filters are independent.
     setModalFilters(filters);
     setModalPage(1);
     setModalOpen(true);
@@ -157,15 +145,9 @@ const ContestTabs = () => {
 
       <Box sx={{ ...card, overflow: "hidden" }}>
         {loading ? (
-          <Typography
-            sx={{
-              py: 6,
-              textAlign: "center",
-              color: theme.palette.appText.muted,
-            }}
-          >
-            Loading contests...
-          </Typography>
+          Array.from({ length: 6 }).map((_, i) => (
+            <ContestCardSkeleton key={i} />
+          ))
         ) : contests.length === 0 ? (
           <Typography
             sx={{
@@ -182,7 +164,6 @@ const ContestTabs = () => {
           ))
         )}
 
-        {/* View All */}
         {!loading && contests.length > 0 && (
           <Box
             sx={{

@@ -6,7 +6,7 @@ import {
   InsightsRounded,
   LightbulbOutlined,
 } from "@mui/icons-material";
-import { Box, Typography } from "@mui/material";
+import { Box, Skeleton, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 
 import { parseYMD } from "../ContestsUtils";
@@ -49,13 +49,35 @@ const CardHeader = ({ title }: { title: string }) => {
 
 const RING_PROGRESS = 0.8;
 
-const Donut = ({ value }: { value: number }) => {
+const Donut = ({
+  value,
+  loading = false,
+}: {
+  value: number;
+  loading?: boolean;
+}) => {
   const theme = useTheme();
 
   const size = 111;
   const stroke = 11;
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          width: size,
+          height: size,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Skeleton variant="circular" width={size} height={size} />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ position: "relative", width: size, height: size }}>
@@ -121,26 +143,53 @@ const Donut = ({ value }: { value: number }) => {
   );
 };
 
-const Stat = ({ label, value }: { label: string; value: string | number }) => {
+const Stat = ({
+  label,
+  value,
+  loading = false,
+}: {
+  label: string;
+  value: string | number;
+  loading?: boolean;
+}) => {
   const theme = useTheme();
 
   return (
     <Box sx={statBoxWrapper}>
-      <Typography
-        variant="body1-medium"
-        sx={{ color: theme.palette.appText.muted }}
-      >
-        {label}
-      </Typography>
+      {loading ? (
+        <>
+          <Skeleton
+            variant="text"
+            width={80}
+            height={18}
+            sx={{ transform: "none" }}
+          />
+          <Skeleton
+            variant="text"
+            width={45}
+            height={22}
+            sx={{ transform: "none", mt: "2px" }}
+          />
+        </>
+      ) : (
+        <>
+          <Typography
+            variant="body1-medium"
+            sx={{ color: theme.palette.appText.muted }}
+          >
+            {label}
+          </Typography>
 
-      <Typography
-        variant="body1-bold"
+          <Typography
+            variant="body1-bold"
         sx={{
           color: theme.palette.appText.main,
         }}
-      >
-        {value}
-      </Typography>
+          >
+            {value}
+          </Typography>
+        </>
+      )}
     </Box>
   );
 };
@@ -164,7 +213,7 @@ const Delta = ({ value }: { value: number }) => {
   );
 };
 
-function RatingCard({
+const RatingCard = ({
   icon,
   iconBg,
   label,
@@ -172,7 +221,8 @@ function RatingCard({
   footer,
   inline,
   fullWidth,
-}: RatingCardProps) {
+  loading = false,
+}: RatingCardProps & { loading?: boolean }) => {
   const theme = useTheme();
 
   return (
@@ -201,43 +251,80 @@ function RatingCard({
       </Typography>
 
       <Box sx={{ gridColumn: 2, mt: "8px" }}>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "baseline",
-            gap: "12px",
-          }}
-        >
-          <Typography
-            variant="h6-bold"
+        {loading ? (
+          <>
+            <Skeleton
+              variant="text"
+              width={75}
+              height={28}
+              sx={{ transform: "none" }}
+            />
+
+            {!inline && (
+              <Skeleton
+                variant="text"
+                width={65}
+                height={16}
+                sx={{
+                  transform: "none",
+                  mt: "6px",
+                }}
+              />
+            )}
+          </>
+        ) : (
+          <Box
             sx={{
-              lineHeight: "28px",
-              color: theme.palette.appText.main,
+              display: "flex",
+              alignItems: "baseline",
+              gap: "12px",
             }}
           >
-            {value}
-          </Typography>
+            <Typography
+              variant="h6-bold"
+              sx={{
+                lineHeight: "28px",
+                color: theme.palette.appText.main,
+              }}
+            >
+              {value}
+            </Typography>
 
-          {inline && footer}
-        </Box>
+            {inline && footer}
+          </Box>
+        )}
 
-        {!inline && footer && (
+        {!loading && !inline && footer && (
           <Box sx={{ mt: "6px", minHeight: 16 }}>{footer}</Box>
         )}
       </Box>
     </Box>
   );
-}
+};
 
 const ContestSidebar = () => {
   const theme = useTheme();
-  const { data } = useGetContestAnalyticsQuery();
+  const { data, isLoading } = useGetContestAnalyticsQuery();
 
-  if (!data?.data) {
+  if (!data?.data && !isLoading) {
     return null;
   }
 
-  const { performance, ratings, activity } = data.data;
+  const { performance, ratings, activity } = data?.data ?? {
+    performance: {
+      participated: 0,
+      won: 0,
+      top10Finishes: 0,
+      winRate: 0,
+    },
+    ratings: {
+      contestRating: 0,
+      highestRating: 0,
+      latestRatingChange: null,
+      highestRatingDate: null,
+    },
+    activity: [],
+  };
 
   const Card = { ...card, p: "16px" };
 
@@ -262,7 +349,7 @@ const ContestSidebar = () => {
         <CardHeader title="Contest Performance" />
 
         <Box sx={chartBoxStyle}>
-          <Donut value={performance.participated} />
+          <Donut value={performance.participated} loading={isLoading} />
 
           <Box
             sx={{
@@ -271,12 +358,24 @@ const ContestSidebar = () => {
               gap: "14px",
             }}
           >
-            <Stat label="Participated" value={performance.participated} />
-            <Stat label="Won" value={performance.won} />
-            <Stat label="Top 10 Finishes" value={performance.top10Finishes} />
+            <Stat
+              label="Participated"
+              value={performance.participated}
+              loading={isLoading}
+            />
+
+            <Stat label="Won" value={performance.won} loading={isLoading} />
+
+            <Stat
+              label="Top 10 Finishes"
+              value={performance.top10Finishes}
+              loading={isLoading}
+            />
+
             <Stat
               label="Win Rate"
               value={`${Number(performance.winRate.toFixed(1))}%`}
+              loading={isLoading}
             />
           </Box>
         </Box>
@@ -302,6 +401,7 @@ const ContestSidebar = () => {
             iconBg={theme.palette.secondary.main100}
             label="Contest Rating"
             value={ratings.contestRating ?? "-"}
+            loading={isLoading}
             footer={
               ratings.latestRatingChange !== null &&
               ratings.latestRatingChange !== undefined ? (
@@ -319,6 +419,7 @@ const ContestSidebar = () => {
             iconBg={theme.palette.secondary.main100}
             label="Highest Rating"
             value={ratings.highestRating ?? "-"}
+            loading={isLoading}
             footer={
               ratings.highestRatingDate ? (
                 <Typography
@@ -339,17 +440,25 @@ const ContestSidebar = () => {
         <CardHeader title="Contest Activity" />
 
         <Box sx={{ mt: "16px" }}>
-          <BarChart
-            data={activityChartData}
-            height={220}
-            color={theme.palette.primary.main}
-            showGrid={false}
-            showTooltip
-          />
+          {isLoading ? (
+            <Skeleton
+              variant="rounded"
+              width="100%"
+              height={220}
+              sx={{ borderRadius: "8px" }}
+            />
+          ) : (
+            <BarChart
+              data={activityChartData}
+              height={220}
+              color={theme.palette.primary.main}
+              showGrid={false}
+              showTooltip
+            />
+          )}
         </Box>
       </Box>
 
-      {/* Tips */}
       <Box
         sx={{
           ...Card,
