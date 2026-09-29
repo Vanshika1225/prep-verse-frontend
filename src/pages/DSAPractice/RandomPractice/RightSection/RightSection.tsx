@@ -342,10 +342,6 @@ const RecentActivity = () => {
         <Typography variant="h6-bold" sx={sectionTitle}>
           Recent Activity
         </Typography>
-
-        <Typography variant="body1-bold" sx={styles.clearLink}>
-          View All
-        </Typography>
       </Box>
 
       {isLoading ? (

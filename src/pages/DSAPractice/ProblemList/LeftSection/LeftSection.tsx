@@ -927,16 +927,18 @@ export const LeftSection = () => {
           mt: 2,
         }}
       >
-        <Typography
-          variant="body1-medium"
-          sx={{
-            color: theme.palette.black.secondary,
-          }}
-        >
-          {totalProblems === 0
-            ? "No problems found"
-            : `Showing ${from} to ${to} of ${totalProblems} problems`}
-        </Typography>
+        {!isLoading && (
+          <Typography
+            variant="body1-medium"
+            sx={{
+              color: theme.palette.black.secondary,
+            }}
+          >
+            {totalProblems === 0
+              ? "No problems found"
+              : `Showing ${from} to ${to} of ${totalProblems} problems`}
+          </Typography>
+        )}
 
         {!isLoading && (
           <Pagination

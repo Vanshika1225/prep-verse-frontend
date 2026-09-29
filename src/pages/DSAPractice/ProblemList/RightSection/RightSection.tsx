@@ -431,10 +431,6 @@ const RecentProblem = () => {
     >
       <Box
         sx={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
           mb: 1.5,
         }}
       >
@@ -446,16 +442,6 @@ const RecentProblem = () => {
           }}
         >
           Recent Problems
-        </Typography>
-
-        <Typography
-          variant="body1-bold"
-          sx={{
-            color: theme.palette.primary.main,
-            cursor: "pointer",
-          }}
-        >
-          View all
         </Typography>
       </Box>
 
