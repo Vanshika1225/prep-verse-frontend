@@ -8,7 +8,7 @@ import { mainGrid } from "./style";
 
 export default function Contest() {
   return (
-    <Box sx={{ p: 0.5 }}>
+    <Box >
       <Box sx={mainGrid}>
         <Box sx={{ minWidth: 0 }}>
           <ContestHeader />

@@ -171,7 +171,6 @@ export const contestApi = createApi({
       providesTags: ["contests"],
       onQueryStarted: onQueryStartedDefault as never,
     }),
-
     getLiveContests: builder.query<LiveContestsResponse, void>({
       query: () => ({
         url: "/api/contests/live",
@@ -180,7 +179,6 @@ export const contestApi = createApi({
       providesTags: ["contests"],
       onQueryStarted: onQueryStartedDefault as never,
     }),
-
     getCompletedContests: builder.query<
       CompletedContestsResponse,
       { search?: string; page?: number; limit?: number }
@@ -193,7 +191,6 @@ export const contestApi = createApi({
       providesTags: ["contests"],
       onQueryStarted: onQueryStartedDefault,
     }),
-
     getContestAnalytics: builder.query<ContestAnalyticsResponse, void>({
       query: () => ({
         url: "/api/contests/analytics",
@@ -202,7 +199,6 @@ export const contestApi = createApi({
       providesTags: ["contests"],
       onQueryStarted: onQueryStartedDefault as never,
     }),
-
     syncAllContests: builder.mutation<SyncResponse, void>({
       query: () => ({
         url: "/api/contests/sync",
@@ -210,7 +206,6 @@ export const contestApi = createApi({
       }),
       invalidatesTags: ["contests"],
     }),
-
     syncUserContests: builder.mutation<SyncResponse, void>({
       query: () => ({
         url: "/api/contests/sync/user",
