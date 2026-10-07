@@ -1,7 +1,6 @@
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
-import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import RadioButtonUncheckedRoundedIcon from "@mui/icons-material/RadioButtonUncheckedRounded";
-import { Box, IconButton, Typography, useTheme } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import { useState } from "react";
 
 import { taskNameStyle, todaysFocusIneerStyle } from "../style";
@@ -34,10 +33,6 @@ const TodaysFocus = ({ tasks }: Props) => {
     >
       <Box sx={todaysFocusIneerStyle}>
         <Typography variant="p-bold">Today's Focus</Typography>
-
-        <IconButton size="small">
-          <EditRoundedIcon fontSize="small" />
-        </IconButton>
       </Box>
 
       {items.map((task) => (

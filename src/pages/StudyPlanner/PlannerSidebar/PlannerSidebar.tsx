@@ -4,6 +4,8 @@ import { Box, Button, Divider, Typography, useTheme } from "@mui/material";
 import { plannerSidebarStyle } from "../style";
 import type { StudyPlan } from "../types";
 
+import { useGetStudyPlansQuery } from "@/services/studyPlannerApi";
+
 interface Props {
   plans: StudyPlan[];
   selectedPlan: string;
@@ -12,6 +14,9 @@ interface Props {
 }
 
 const PlannerSidebar = ({ plans, selectedPlan, onSelect, onCreate }: Props) => {
+  const { data: getPlan } = useGetStudyPlansQuery();
+  console.warn(getPlan, "plan");
+
   const theme = useTheme();
 
   return (
