@@ -1,8 +1,24 @@
 export type PlanColor = "primary" | "success" | "warning" | "info";
 
 export interface StudyPlan {
+  _id: string;
   id: string;
+  userId: string;
   name: string;
+  duration: string;
+  organizationType: string;
+  learningTrack: string;
+  specializations: string[];
+  availableDays: string[];
+  availableFrom: string;
+  availableUntil: string;
+  startDate: string;
+  endDate: string;
+  isActive?: boolean;
+  totalTasks: number;
+  completedTasks: number;
+  remaining: number;
+  completion: number;
   dateRange: string;
 }
 
