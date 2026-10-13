@@ -1,43 +1,63 @@
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
-import { Box, IconButton, Typography, useTheme } from "@mui/material";
+import { Box, IconButton, Skeleton, Typography, useTheme } from "@mui/material";
 import { useMemo, useState } from "react";
 
 import { dateStyle, gridStyle, weekScheduleTopBar } from "../style";
-import type { ScheduleItem } from "../types";
+
+import NoDataFound from "@/components/NoDataFound/NoDataFound";
+import {
+  useGetWeeklyScheduleQuery,
+  type StudyTask,
+} from "@/services/studyPlannerApi";
 
 interface Props {
-  schedule: ScheduleItem[];
+  planId?: string;
   planStart?: Date;
   planMonths?: number;
 }
 
 const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-const startOfDay = (d: Date) =>
-  new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const startOfDay = (date: Date) =>
+  new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
-const addDays = (d: Date, n: number) => {
-  const r = startOfDay(d);
-  r.setDate(r.getDate() + n);
-  return r;
+const addDays = (date: Date, count: number) => {
+  const result = startOfDay(date);
+  result.setDate(result.getDate() + count);
+  return result;
 };
 
-const startOfWeek = (d: Date) => {
-  const r = startOfDay(d);
-  r.setDate(r.getDate() - ((r.getDay() + 6) % 7));
-  return r;
+const startOfWeek = (date: Date) => {
+  const result = startOfDay(date);
+  result.setDate(result.getDate() - ((result.getDay() + 6) % 7));
+  return result;
 };
 
-const fmt = (d: Date, withYear = false) =>
-  d.toLocaleDateString("en-US", {
+const formatDate = (date: Date, withYear = false) =>
+  date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     ...(withYear ? { year: "numeric" } : {}),
   });
 
-const WeekSchedule = ({ schedule, planStart, planMonths = 3 }: Props) => {
+const dateKey = (date: Date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+    2,
+    "0",
+  )}-${String(date.getDate()).padStart(2, "0")}`;
+
+const getTaskDateKey = (task: StudyTask) => {
+  const date = new Date(task.scheduledDate);
+
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(
+    2,
+    "0",
+  )}-${String(date.getUTCDate()).padStart(2, "0")}`;
+};
+
+const WeekSchedule = ({ planId, planStart, planMonths = 3 }: Props) => {
   const theme = useTheme();
 
   const { planFirst, planLast } = useMemo(() => {
@@ -47,33 +67,57 @@ const WeekSchedule = ({ schedule, planStart, planMonths = 3 }: Props) => {
       first.getMonth() + planMonths,
       first.getDate(),
     );
-    last.setDate(last.getDate() - 1);
+    last.setDate(last.getDate());
     return { planFirst: first, planLast: last };
-  }, [planMonths, planStart]);
+  }, [planStart, planMonths]);
 
   const minWeek = startOfWeek(planFirst);
   const maxWeek = startOfWeek(planLast);
 
-  const [weekStart, setWeekStart] = useState<Date>(minWeek);
+  const [weekOffset, setWeekOffset] = useState(0);
+
+  const weekStart = addDays(minWeek, weekOffset * 7);
+
+  const { data, isLoading } = useGetWeeklyScheduleQuery(
+    { weekStart: dateKey(weekStart) },
+    { skip: !planId },
+  );
+
+  const allTasks = Object.values(data?.data?.schedule ?? {}).flatMap(
+    (day) => day.tasks ?? [],
+  );
+
+  const tasks = allTasks.filter((task) => {
+    const taskPlanId =
+      typeof task.planId === "string" ? task.planId : task.planId?._id;
+
+    return taskPlanId === planId;
+  });
 
   const weekEnd = addDays(weekStart, 6);
-  const canPrev = weekStart > minWeek;
-  const canNext = weekStart < maxWeek;
+  const canPrev = weekOffset > 0;
+  const canNext = weekStart.getTime() < maxWeek.getTime();
 
-  const goPrev = () => canPrev && setWeekStart(addDays(weekStart, -7));
-  const goNext = () => canNext && setWeekStart(addDays(weekStart, 7));
-
-  const getColor = (type: ScheduleItem["type"]) => {
-    const colors = {
-      dsa: theme.palette.success.main,
-      system: theme.palette.black.main,
-      web: theme.palette.error.main,
-      revision: theme.palette.warning.main,
-      other: theme.palette.primary.main,
-    };
-
-    return colors[type];
+  const goPrev = () => {
+    if (canPrev) {
+      setWeekOffset((current) => current - 1);
+    }
   };
+
+  const goNext = () => {
+    if (canNext) {
+      setWeekOffset((current) => current + 1);
+    }
+  };
+
+  const weekDates = days.map((_, index) => addDays(weekStart, index));
+
+  const timeSlots = [...new Set(tasks.map((task) => task.startTime))].sort();
+
+  const getColor = (task: StudyTask) =>
+    task.status === "Completed"
+      ? theme.palette.success.main
+      : theme.palette.primary.main;
 
   const headerCellSx = {
     position: "sticky",
@@ -89,13 +133,14 @@ const WeekSchedule = ({ schedule, planStart, planMonths = 3 }: Props) => {
         border: `1px solid ${theme.palette.divider}`,
         borderRadius: 2,
         overflow: "hidden",
+        minWidth: 0,
       }}
     >
       <Box sx={weekScheduleTopBar}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <CalendarMonthRoundedIcon fontSize="small" />
           <Typography variant="p-bold">
-            {fmt(weekStart)} – {fmt(weekEnd, true)}
+            {formatDate(weekStart)} – {formatDate(weekEnd, true)}
           </Typography>
         </Box>
 
@@ -109,110 +154,141 @@ const WeekSchedule = ({ schedule, planStart, planMonths = 3 }: Props) => {
         </Box>
       </Box>
 
-      <Box sx={{ overflow: "auto", maxHeight: 520 }}>
-        <Box sx={gridStyle}>
-          <Box sx={headerCellSx} />
+      {isLoading ? (
+        <Box sx={{ p: 2 }}>
+          <Skeleton variant="rectangular" height={504} sx={{ mb: 1 }} />
+        </Box>
+      ) : !planId || tasks.length === 0 ? (
+        <Box
+          sx={{
+            height: 520,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            "& > *": {
+              margin: 0,
+            },
+          }}
+        >
+          <NoDataFound />
+        </Box>
+      ) : (
+        <Box sx={{ overflow: "auto", maxHeight: 520 }}>
+          <Box sx={gridStyle}>
+            <Box sx={headerCellSx} />
 
-          {days.map((day, index) => {
-            const date = addDays(weekStart, index);
-            const inRange = date >= planFirst && date <= planLast;
+            {weekDates.map((date, index) => {
+              const inRange = date >= planFirst && date <= planLast;
 
-            return (
-              <Box
-                key={day}
-                sx={{
-                  ...headerCellSx,
-                  textAlign: "center",
-                  py: 1,
-                  borderLeft: `1px solid ${theme.palette.divider}`,
-                  opacity: inRange ? 1 : 0.4,
-                }}
-              >
-                <Typography
-                  variant="body-medium"
-                  color={theme.palette.black.secondary}
-                >
-                  {day}
-                </Typography>
-
-                <Typography
-                  variant="body-medium"
+              return (
+                <Box
+                  key={days[index]}
                   sx={{
-                    ...dateStyle,
-                    color: theme.palette.black.main,
+                    ...headerCellSx,
+                    textAlign: "center",
+                    py: 1,
+                    borderLeft: `1px solid ${theme.palette.divider}`,
+                    opacity: inRange ? 1 : 0.4,
                   }}
                 >
-                  {date.getDate()}
-                </Typography>
-              </Box>
-            );
-          })}
+                  <Typography
+                    variant="body-medium"
+                    color={theme.palette.black.secondary}
+                  >
+                    {days[index]}
+                  </Typography>
 
-          {schedule.map((item) => (
-            <Box key={item.id} sx={{ display: "contents" }}>
-              <Box
-                sx={{
-                  minHeight: 72,
-                  px: 1,
-                  py: 1,
-                  borderTop: `1px solid ${theme.palette.divider}`,
-                }}
-              >
-                <Typography variant="body-bold" color="text.secondary">
-                  {item.start}
-                </Typography>
-              </Box>
-
-              {days.map((day, index) => {
-                const date = addDays(weekStart, index);
-                const inRange = date >= planFirst && date <= planLast;
-                const showItem =
-                  inRange && (day !== "Sun" || item.type === "other");
-
-                return (
-                  <Box
-                    key={`${item.id}-${day}`}
+                  <Typography
+                    variant="body-medium"
                     sx={{
-                      minHeight: 72,
-                      p: 1,
-                      borderTop: `1px solid ${theme.palette.divider}`,
-                      borderLeft: `1px solid ${theme.palette.divider}`,
-                      bgcolor: inRange
-                        ? "transparent"
-                        : "action.disabledBackground",
+                      ...dateStyle,
+                      color: theme.palette.black.main,
                     }}
                   >
-                    {showItem && (
-                      <Box
-                        sx={{
-                          p: 1,
-                          height: "100%",
-                          borderRadius: 1,
-                          borderLeft: `3px solid ${getColor(item.type)}`,
-                        }}
-                      >
-                        <Typography variant="body1-medium">
-                          {item.title}
-                        </Typography>
+                    {date.getDate()}
+                  </Typography>
+                </Box>
+              );
+            })}
 
-                        {item.subtitle && (
+            {timeSlots.map((time) => (
+              <Box key={time} sx={{ display: "contents" }}>
+                <Box
+                  sx={{
+                    minHeight: 72,
+                    px: 1,
+                    py: 1,
+                    borderTop: `1px solid ${theme.palette.divider}`,
+                  }}
+                >
+                  <Typography variant="body-bold" color="text.secondary">
+                    {time}
+                  </Typography>
+                </Box>
+
+                {weekDates.map((date, index) => {
+                  const inRange = date >= planFirst && date <= planLast;
+
+                  const cellTasks = tasks.filter(
+                    (task) =>
+                      getTaskDateKey(task) === dateKey(date) &&
+                      task.startTime === time,
+                  );
+
+                  return (
+                    <Box
+                      key={`${time}-${days[index]}`}
+                      sx={{
+                        minHeight: 72,
+                        p: 1,
+                        borderTop: `1px solid ${theme.palette.divider}`,
+                        borderLeft: `1px solid ${theme.palette.divider}`,
+                        bgcolor: inRange ? "transparent" : "secondary.light",
+                      }}
+                    >
+                      {cellTasks.map((task) => (
+                        <Box
+                          key={task._id}
+                          sx={{
+                            p: 1,
+                            mb: 0.5,
+                            borderRadius: 1,
+                            bgcolor: "action.hover",
+                            borderLeft: `3px solid ${getColor(task)}`,
+                          }}
+                        >
+                          <Typography variant="body1-medium">
+                            {task.title}
+                          </Typography>
+
                           <Typography
-                            variant="body1-medium"
+                            variant="caption"
                             color="text.secondary"
                             sx={{ display: "block" }}
                           >
-                            {item.subtitle}
+                            {task.startTime} – {task.endTime}
                           </Typography>
-                        )}
-                      </Box>
-                    )}
-                  </Box>
-                );
-              })}
-            </Box>
-          ))}
+
+                          <Typography
+                            variant="caption"
+                            color={
+                              task.status === "Completed"
+                                ? "success.main"
+                                : "text.secondary"
+                            }
+                          >
+                            {task.status}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Box>
+                  );
+                })}
+              </Box>
+            ))}
+          </Box>
         </Box>
-      </Box>
+      )}
     </Box>
   );
 };

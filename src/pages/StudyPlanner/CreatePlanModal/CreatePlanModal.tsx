@@ -35,24 +35,27 @@ import ReusableModal from "@/components/ModalBox/ModalBox";
 interface Props {
   open: boolean;
   onClose: () => void;
-  onCreate: (data: CreatePlanData) => void;
+  onCreate: (data: CreatePlanData) => Promise<void>;
+  isLoading: boolean;
 }
 
-const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
+const INITIAL_FORM: CreatePlanData = {
+  name: "",
+  duration: 3,
+  planningStyle: "daily",
+  track: "frontend",
+  subjects: [],
+  days: [],
+  startTime: "18:00",
+  endTime: "21:00",
+};
+
+const CreatePlanModal = ({ open, onClose, onCreate, isLoading }: Props) => {
   const theme = useTheme();
 
   const [step, setStep] = useState(0);
-
-  const [form, setForm] = useState<CreatePlanData>({
-    name: "",
-    duration: 3,
-    planningStyle: "daily",
-    track: "frontend",
-    subjects: [],
-    days: [],
-    startTime: "18:00",
-    endTime: "21:00",
-  });
+  const [form, setForm] = useState<CreatePlanData>(INITIAL_FORM);
+  const [submitError, setSubmitError] = useState("");
 
   const updateForm = <K extends keyof CreatePlanData>(
     key: K,
@@ -62,6 +65,8 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
       ...current,
       [key]: value,
     }));
+
+    setSubmitError("");
   };
 
   const options = useMemo(() => {
@@ -77,6 +82,8 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
         ? current.subjects.filter((item) => item !== subject)
         : [...current.subjects, subject],
     }));
+
+    setSubmitError("");
   };
 
   const toggleDay = (day: string) => {
@@ -102,37 +109,54 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
     }
 
     return (
-      form.days.length > 0 && Boolean(form.startTime) && Boolean(form.endTime)
+      form.days.length > 0 &&
+      Boolean(form.startTime) &&
+      Boolean(form.endTime) &&
+      form.startTime < form.endTime
     );
   };
 
   const handleTrackChange = (track: Track) => {
-    updateForm("track", track);
-    updateForm("subjects", []);
+    setForm((current) => ({
+      ...current,
+      track,
+      subjects: [],
+    }));
+
+    setSubmitError("");
   };
 
-  const handleCreate = () => {
-    if (!canContinue()) return;
-
-    onCreate(form);
-
+  const resetForm = () => {
     setStep(0);
     setForm({
-      name: "",
-      duration: 3,
-      planningStyle: "daily",
-      track: "frontend",
+      ...INITIAL_FORM,
       subjects: [],
       days: [],
-      startTime: "18:00",
-      endTime: "21:00",
     });
+    setSubmitError("");
+  };
 
-    onClose();
+  const handleCreate = async () => {
+    if (!canContinue() || isLoading) return;
+
+    setSubmitError("");
+
+    try {
+      await onCreate({
+        ...form,
+        name: form.name.trim(),
+      });
+
+      resetForm();
+    } catch {
+      setSubmitError("Unable to create your study plan. Please try again.");
+    }
   };
 
   const handleClose = () => {
-    setStep(0);
+    if (isLoading) return;
+
+    resetForm();
     onClose();
   };
 
@@ -162,6 +186,7 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
             <Button
               variant="outlined"
               startIcon={<ArrowBackRoundedIcon />}
+              disabled={isLoading}
               onClick={() => setStep((current) => current - 1)}
             >
               Back
@@ -172,7 +197,7 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
             <Button
               variant="contained"
               endIcon={<ArrowForwardRoundedIcon />}
-              disabled={!canContinue()}
+              disabled={!canContinue() || isLoading}
               onClick={() => setStep((current) => current + 1)}
             >
               Continue
@@ -181,16 +206,15 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
             <Button
               variant="contained"
               startIcon={<CheckRoundedIcon />}
-              disabled={!canContinue()}
+              disabled={!canContinue() || isLoading}
               onClick={handleCreate}
             >
-              Generate Plan
+              {isLoading ? "Generating..." : "Generate Plan"}
             </Button>
           )}
         </>
       }
     >
-      {/* Step Indicator */}
       <Box
         sx={{
           display: "flex",
@@ -247,7 +271,6 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
         ))}
       </Box>
 
-      {/* STEP 1 */}
       {step === 0 && (
         <Box
           sx={{
@@ -257,11 +280,11 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
           }}
         >
           <TextField
-            label="Plan Name"
-            placeholder="e.g. FAANG Frontend Preparation"
+            placeholder="Enter Plan Name"
             value={form.name}
             onChange={(event) => updateForm("name", event.target.value)}
             fullWidth
+            required
           />
 
           <Box>
@@ -295,7 +318,10 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
             <Box
               sx={{
                 display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "repeat(3, 1fr)",
+                },
                 gap: 1.5,
               }}
             >
@@ -305,12 +331,14 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
                 return (
                   <Box
                     key={item.value}
-                    onClick={() =>
-                      updateForm(
-                        "planningStyle",
-                        item.value as CreatePlanData["planningStyle"],
-                      )
-                    }
+                    onClick={() => {
+                      if (!isLoading) {
+                        updateForm(
+                          "planningStyle",
+                          item.value as CreatePlanData["planningStyle"],
+                        );
+                      }
+                    }}
                     sx={{
                       p: 2,
                       border: `1px solid ${
@@ -319,7 +347,7 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
                           : theme.palette.divider
                       }`,
                       borderRadius: 2,
-                      cursor: "pointer",
+                      cursor: isLoading ? "default" : "pointer",
                       bgcolor: selected ? "action.hover" : "transparent",
                     }}
                   >
@@ -336,7 +364,6 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
         </Box>
       )}
 
-      {/* STEP 2 */}
       {step === 1 && (
         <Box
           sx={{
@@ -351,7 +378,10 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
             <Select
               value={form.track}
               label="Learning Track"
-              onChange={(event) => handleTrackChange(event.target.value)}
+              disabled={isLoading}
+              onChange={(event) =>
+                handleTrackChange(event.target.value)
+              }
             >
               {TRACKS.map((track) => (
                 <MenuItem key={track.value} value={track.value}>
@@ -370,7 +400,11 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
               <Box
                 sx={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(3, 1fr)",
+                  gridTemplateColumns: {
+                    xs: "1fr",
+                    sm: "repeat(2, 1fr)",
+                    md: "repeat(3, 1fr)",
+                  },
                   gap: 1.5,
                 }}
               >
@@ -380,7 +414,9 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
                   return (
                     <Box
                       key={option}
-                      onClick={() => toggleSubject(option)}
+                      onClick={() => {
+                        if (!isLoading) toggleSubject(option);
+                      }}
                       sx={{
                         p: 1.5,
                         border: `1px solid ${
@@ -389,14 +425,19 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
                             : theme.palette.divider
                         }`,
                         borderRadius: 2,
-                        cursor: "pointer",
+                        cursor: isLoading ? "default" : "pointer",
                         display: "flex",
                         alignItems: "center",
                         gap: 1,
                         bgcolor: selected ? "action.hover" : "transparent",
                       }}
                     >
-                      <Checkbox checked={selected} size="small" sx={{ p: 0 }} />
+                      <Checkbox
+                        checked={selected}
+                        size="small"
+                        sx={{ p: 0 }}
+                        disabled={isLoading}
+                      />
 
                       <Typography variant="body2">{option}</Typography>
                     </Box>
@@ -414,7 +455,10 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
                 <FormGroup
                   sx={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(2, 1fr)",
+                    gridTemplateColumns: {
+                      xs: "1fr",
+                      sm: "repeat(2, 1fr)",
+                    },
                   }}
                 >
                   {[
@@ -433,8 +477,9 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
                       key={subject}
                       control={
                         <Checkbox
-                          checked={form.subjects.includes(subject)}
-                          onChange={() => toggleSubject(subject)}
+                        checked={form.subjects.includes(subject)}
+                        disabled={isLoading}
+                        onChange={() => toggleSubject(subject)}
                         />
                       }
                       label={subject}
@@ -465,6 +510,7 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
                     label={subject}
                     onDelete={() => toggleSubject(subject)}
                     size="small"
+                    disabled={isLoading}
                   />
                 ))}
               </Box>
@@ -473,7 +519,6 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
         </Box>
       )}
 
-      {/* STEP 3 */}
       {step === 2 && (
         <Box
           sx={{
@@ -497,6 +542,7 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
               <Button
                 size="small"
                 variant="outlined"
+                disabled={isLoading}
                 onClick={() =>
                   selectDays([
                     "monday",
@@ -513,6 +559,7 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
               <Button
                 size="small"
                 variant="outlined"
+                disabled={isLoading}
                 onClick={() => selectDays(["saturday", "sunday"])}
               >
                 Weekend
@@ -521,6 +568,7 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
               <Button
                 size="small"
                 variant="outlined"
+                disabled={isLoading}
                 onClick={() => selectDays(DAYS.map((day) => day.value))}
               >
                 Every Day
@@ -531,7 +579,10 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: "repeat(7, 1fr)",
+              gridTemplateColumns: {
+                xs: "repeat(2, 1fr)",
+                sm: "repeat(4, 1fr)",
+              },
               gap: 1,
             }}
           >
@@ -541,7 +592,9 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
               return (
                 <Box
                   key={day.value}
-                  onClick={() => toggleDay(day.value)}
+                  onClick={() => {
+                    if (!isLoading) toggleDay(day.value);
+                  }}
                   sx={{
                     p: 1.5,
                     textAlign: "center",
@@ -551,7 +604,7 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
                         : theme.palette.divider
                     }`,
                     borderRadius: 2,
-                    cursor: "pointer",
+                    cursor: isLoading ? "default" : "pointer",
                     bgcolor: selected ? "action.hover" : "transparent",
                   }}
                 >
@@ -569,7 +622,10 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
             <Box
               sx={{
                 display: "grid",
-                gridTemplateColumns: "1fr 1fr",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "1fr 1fr",
+                },
                 gap: 2,
               }}
             >
@@ -577,28 +633,30 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
                 label="Available From"
                 type="time"
                 value={form.startTime}
+                disabled={isLoading}
                 onChange={(event) =>
                   updateForm("startTime", event.target.value)
                 }
-                slotProps={{
-                  inputLabel: {
-                    shrink: true,
-                  },
-                }}
+                slotProps={{ inputLabel: { shrink: true } }}
               />
 
               <TextField
                 label="Available Until"
                 type="time"
                 value={form.endTime}
+                disabled={isLoading}
                 onChange={(event) => updateForm("endTime", event.target.value)}
-                slotProps={{
-                  inputLabel: {
-                    shrink: true,
-                  },
-                }}
+                slotProps={{ inputLabel: { shrink: true } }}
               />
             </Box>
+
+            {form.startTime &&
+              form.endTime &&
+              form.startTime >= form.endTime && (
+                <Typography color="error" variant="caption">
+                  End time must be later than start time.
+                </Typography>
+              )}
           </Box>
 
           <Box
@@ -614,6 +672,12 @@ const CreatePlanModal = ({ open, onClose, onCreate }: Props) => {
               {form.days.length} days/week · {form.startTime} – {form.endTime}
             </Typography>
           </Box>
+
+          {submitError && (
+            <Typography color="error" variant="body2" role="alert">
+              {submitError}
+            </Typography>
+          )}
         </Box>
       )}
     </ReusableModal>

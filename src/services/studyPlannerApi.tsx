@@ -94,7 +94,7 @@ export interface UpdateStudyPlanRequest {
   >;
 }
 
-interface WeeklyScheduleDay {
+export interface WeeklyScheduleDay {
   date: string;
   dayName: string;
   tasks: StudyTask[];

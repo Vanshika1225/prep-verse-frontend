@@ -92,49 +92,68 @@ const PlannerSidebar = ({
         ) : plans.length === 0 ? (
           <NoDataFound message="Create your first study plan to organize your learning schedule." />
         ) : (
-          plans.map((plan) => {
-            const selected = selectedPlan === plan.id;
+          <Box
+            sx={{
+              maxHeight: 280,
+              overflowY: "auto",
+              "&::-webkit-scrollbar": {
+                width: "5px",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                backgroundColor: theme.palette.divider,
+                borderRadius: 3,
+              },
+              "&::-webkit-scrollbar-track": {
+                backgroundColor: "transparent",
+              },
+            }}
+          >
+            {plans.map((plan) => {
+              const selected = selectedPlan === plan.id;
 
-            return (
-              <Box
-                key={plan.id}
-                onClick={() => onSelect(plan.id)}
-                sx={{
-                  px: 2,
-                  py: 1.5,
-                  cursor: "pointer",
-                  borderRadius: 3,
-                  bgcolor: selected
-                    ? theme.palette.primary.main200
-                    : "transparent",
-                  borderLeft: selected
-                    ? `3px solid ${theme.palette.primary.main}`
-                    : "3px solid transparent",
-                }}
-              >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Box
-                    sx={{
-                      width: 7,
-                      height: 7,
-                      borderRadius: "50%",
-                      bgcolor: plan.isActive ? "primary.main" : "text.disabled",
-                    }}
-                  />
-
-                  <Typography variant="body1-bold">{plan.name}</Typography>
-                </Box>
-
-                <Typography
-                  variant="body1-medium"
-                  color={theme.palette.black.secondary}
-                  sx={{ display: "block", ml: 2 }}
+              return (
+                <Box
+                  key={plan.id}
+                  onClick={() => onSelect(plan.id)}
+                  sx={{
+                    px: 2,
+                    py: 1.5,
+                    cursor: "pointer",
+                    borderRadius: 3,
+                    bgcolor: selected
+                      ? theme.palette.primary.main200
+                      : "transparent",
+                    borderLeft: selected
+                      ? `3px solid ${theme.palette.primary.main}`
+                      : "3px solid transparent",
+                  }}
                 >
-                  {plan.dateRange}
-                </Typography>
-              </Box>
-            );
-          })
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Box
+                      sx={{
+                        width: 7,
+                        height: 7,
+                        borderRadius: "50%",
+                        bgcolor: plan.isActive
+                          ? "primary.main"
+                          : "text.disabled",
+                      }}
+                    />
+
+                    <Typography variant="body1-bold">{plan.name}</Typography>
+                  </Box>
+
+                  <Typography
+                    variant="body1-medium"
+                    color={theme.palette.black.secondary}
+                    sx={{ display: "block", ml: 2 }}
+                  >
+                    {plan.dateRange}
+                  </Typography>
+                </Box>
+              );
+            })}
+          </Box>
         )}
 
         <Box sx={{ p: 1.5 }}>

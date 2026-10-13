@@ -8,11 +8,24 @@ import PlannerSidebar from "./PlannerSidebar/PlannerSidebar";
 import PlannerStats from "./PlannerStats/PlannerStats";
 import TodaysFocus from "./TodaysFocus/TodaysFocus";
 import WeekSchedule from "./WeekSchedule/WeekSchedule";
-import { FOCUS_TASKS, SCHEDULE } from "./data";
+import { FOCUS_TASKS } from "./data";
 import { innerBox, mainContentWrapper } from "./style";
 import type { CreatePlanData, StudyPlan } from "./types";
 
-import { useGetStudyPlansQuery } from "@/services/studyPlannerApi";
+import {
+  useGetStudyPlansQuery,
+  useCreateStudyPlanMutation,
+} from "@/services/studyPlannerApi";
+
+const DAY_ABBREVIATIONS: Record<string, string> = {
+  monday: "Mon",
+  tuesday: "Tue",
+  wednesday: "Wed",
+  thursday: "Thu",
+  friday: "Fri",
+  saturday: "Sat",
+  sunday: "Sun",
+};
 
 const StudyPlanner = () => {
   const theme = useTheme();
@@ -21,6 +34,9 @@ const StudyPlanner = () => {
   const [createPlanOpen, setCreatePlanOpen] = useState(false);
 
   const { data: response, isLoading } = useGetStudyPlansQuery();
+
+  const [createStudyPlan, { isLoading: isCreating }] =
+    useCreateStudyPlanMutation();
 
   const plans: StudyPlan[] = (response?.data ?? []).map((plan) => ({
     ...plan,
@@ -38,8 +54,37 @@ const StudyPlanner = () => {
 
   const activePlan = plans.find((plan) => plan.id === selectedPlan) ?? plans[0];
 
-  const handleCreatePlan = (data: CreatePlanData) => {
-    setCreatePlanOpen(false);
+  const handleCreatePlan = async (data: CreatePlanData) => {
+    try {
+      const payload = {
+        name: data.name.trim(),
+        duration: `${data.duration} Months`,
+        organizationType:
+          data.planningStyle.charAt(0).toUpperCase() +
+          data.planningStyle.slice(1),
+        learningTrack:
+          data.track === "frontend"
+            ? "Frontend Development"
+            : data.track === "devops"
+              ? "DevOps"
+              : "Custom",
+        specializations: data.subjects,
+        availableDays: data.days.map(
+          (day) => DAY_ABBREVIATIONS[day.toLowerCase()] ?? day,
+        ),
+        availableFrom: data.startTime,
+        availableUntil: data.endTime,
+      };
+
+      const result = await createStudyPlan(payload).unwrap();
+      const newPlan = result.data.plan;
+
+      setSelectedPlan(newPlan._id);
+      setCreatePlanOpen(false);
+    } catch (error) {
+      console.error("Failed to create study plan:", error);
+      throw error;
+    }
   };
 
   return (
@@ -76,11 +121,16 @@ const StudyPlanner = () => {
           isLoading={isLoading}
         />
 
-        <WeekSchedule
-          schedule={SCHEDULE}
-          planStart={activePlan ? new Date(activePlan.startDate) : new Date()}
-          planMonths={activePlan ? Number.parseInt(activePlan.duration, 10) : 6}
-        />
+        {activePlan ? (
+          <WeekSchedule
+            key={activePlan.id}
+            planId={activePlan.id}
+            planStart={new Date(activePlan.startDate)}
+            planMonths={Number.parseInt(activePlan.duration, 10) || 3}
+          />
+        ) : (
+          <WeekSchedule />
+        )}
 
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <CalendarCard />
@@ -92,6 +142,7 @@ const StudyPlanner = () => {
         open={createPlanOpen}
         onClose={() => setCreatePlanOpen(false)}
         onCreate={handleCreatePlan}
+        isLoading={isCreating}
       />
     </Box>
   );
