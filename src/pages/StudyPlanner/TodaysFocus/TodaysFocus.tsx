@@ -1,26 +1,75 @@
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import RadioButtonUncheckedRoundedIcon from "@mui/icons-material/RadioButtonUncheckedRounded";
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Skeleton, Typography, useTheme } from "@mui/material";
 import { useState } from "react";
 
 import { taskNameStyle, todaysFocusIneerStyle } from "../style";
-import type { PlannerTask } from "../types";
 
-interface Props {
-  tasks: PlannerTask[];
-}
+import NoDataFound from "@/components/NoDataFound/NoDataFound";
+import {
+  useGetTodayFocusQuery,
+  useUpdateTasksStatusMutation,
+} from "@/services/studyPlannerApi";
 
-const TodaysFocus = ({ tasks }: Props) => {
+const TodaysFocus = () => {
   const theme = useTheme();
 
-  const [items, setItems] = useState(tasks);
+  const { data, isLoading } = useGetTodayFocusQuery();
+  const [updateTasksStatus, { isLoading: isUpdating }] =
+    useUpdateTasksStatusMutation();
 
-  const toggleTask = (id: string) => {
-    setItems((current) =>
-      current.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task,
-      ),
-    );
+  const [overrides, setOverrides] = useState<Record<string, boolean>>({});
+  const tasks = data?.data ?? [];
+
+  const groupedTasks = Object.values(
+    tasks.reduce<
+      Record<
+        string,
+        {
+          title: string;
+          ids: string[];
+          statuses: ("Pending" | "Completed")[];
+        }
+      >
+    >((groups, task) => {
+      const key = task.title.trim().toLowerCase();
+
+      groups[key] ??= {
+        title: task.title,
+        ids: [],
+        statuses: [],
+      };
+
+      groups[key].ids.push(task._id);
+      groups[key].statuses.push(task.status);
+
+      return groups;
+    }, {}),
+  );
+
+  const toggleTask = async (
+    key: string,
+    ids: string[],
+    isCompleted: boolean,
+  ) => {
+    if (isUpdating) return;
+
+    const nextCompleted = !isCompleted;
+
+    setOverrides((prev) => ({ ...prev, [key]: nextCompleted }));
+
+    try {
+      await updateTasksStatus({
+        ids,
+        status: nextCompleted ? "Completed" : "Pending",
+      }).unwrap();
+    } catch {
+      setOverrides((prev) => {
+        const updated = { ...prev };
+        delete updated[key];
+        return updated;
+      });
+    }
   };
 
   return (
@@ -35,39 +84,62 @@ const TodaysFocus = ({ tasks }: Props) => {
         <Typography variant="p-bold">Today's Focus</Typography>
       </Box>
 
-      {items.map((task) => (
-        <Box
-          key={task.id}
-          onClick={() => toggleTask(task.id)}
-          sx={taskNameStyle}
-        >
-          {task.completed ? (
-            <CheckCircleRoundedIcon
-              fontSize="small"
-              sx={{ color: theme.palette.success.main }}
-            />
-          ) : (
-            <RadioButtonUncheckedRoundedIcon
-              fontSize="small"
-              sx={{ color: theme.palette.black.secondary }}
-            />
-          )}
-
-          <Typography
-            variant="body-medium"
-            color={
-              task.completed
-                ? theme.palette.black.secondary
-                : theme.palette.text.primary
-            }
-            sx={{
-              textDecoration: task.completed ? "line-through" : "none",
-            }}
-          >
-            {task.title}
-          </Typography>
+      {isLoading ? (
+        <Box>
+          {[1, 2, 3, 4, 5, 6].map((item) => (
+            <Skeleton key={item} variant="rounded" height={28} sx={{ my: 1 }} />
+          ))}
         </Box>
-      ))}
+      ) : groupedTasks.length === 0 ? (
+        <NoDataFound />
+      ) : (
+        <Box sx={{ maxHeight: 200, overflowY: "auto", pr: 1 }}>
+          {groupedTasks.map((task) => {
+            const key = task.title.trim().toLowerCase();
+            const isCompleted =
+              overrides[key] ??
+              task.statuses.every((status) => status === "Completed");
+
+            return (
+              <Box
+                key={key}
+                onClick={() => void toggleTask(key, task.ids, isCompleted)}
+                sx={{
+                  ...taskNameStyle,
+                  cursor: isUpdating ? "wait" : "pointer",
+                  pointerEvents: isUpdating ? "none" : "auto",
+                }}
+              >
+                {isCompleted ? (
+                  <CheckCircleRoundedIcon
+                    fontSize="small"
+                    sx={{ color: theme.palette.success.main }}
+                  />
+                ) : (
+                  <RadioButtonUncheckedRoundedIcon
+                    fontSize="small"
+                    sx={{ color: theme.palette.black.secondary }}
+                  />
+                )}
+
+                <Typography
+                  variant="body-medium"
+                  color={
+                    isCompleted
+                      ? theme.palette.black.secondary
+                      : theme.palette.text.primary
+                  }
+                  sx={{
+                    textDecoration: isCompleted ? "line-through" : "none",
+                  }}
+                >
+                  {task.title}
+                </Typography>
+              </Box>
+            );
+          })}
+        </Box>
+      )}
     </Box>
   );
 };

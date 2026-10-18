@@ -245,19 +245,23 @@ export const studyPlannerApi = createApi({
       providesTags: ["studyTasks"],
       onQueryStarted: onQueryStartedDefault,
     }),
-    updateTaskStatus: builder.mutation<
-      ApiResponse<StudyTask>,
-      UpdateTaskStatusRequest
+    updateTasksStatus: builder.mutation<
+      ApiResponse<{
+        matchedCount: number;
+        modifiedCount: number;
+        tasks: StudyTask[];
+      }>,
+      {
+        ids: string[];
+        status: "Pending" | "Completed";
+      }
     >({
-      query: ({ id, status }) => ({
-        url: `/api/study-planner/tasks/${id}`,
-        method: "POST",
-        body: {
-          status,
-        },
+      query: ({ ids, status }) => ({
+        url: "/api/study-planner/tasks/bulk-status",
+        method: "PATCH",
+        body: { ids, status },
       }),
       invalidatesTags: ["studyTasks", "studyPlannerStats", "studyPlans"],
-      onQueryStarted: onMutationStartedDefault,
     }),
   }),
 });
@@ -268,5 +272,5 @@ export const {
   useGetWeeklyScheduleQuery,
   useGetStudyPlannerStatsQuery,
   useGetTodayFocusQuery,
-  useUpdateTaskStatusMutation,
+  useUpdateTasksStatusMutation,
 } = studyPlannerApi;

@@ -8,7 +8,6 @@ import PlannerSidebar from "./PlannerSidebar/PlannerSidebar";
 import PlannerStats from "./PlannerStats/PlannerStats";
 import TodaysFocus from "./TodaysFocus/TodaysFocus";
 import WeekSchedule from "./WeekSchedule/WeekSchedule";
-import { FOCUS_TASKS } from "./data";
 import { innerBox, mainContentWrapper } from "./style";
 import type { CreatePlanData, StudyPlan } from "./types";
 
@@ -134,7 +133,7 @@ const StudyPlanner = () => {
 
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <CalendarCard />
-          <TodaysFocus tasks={FOCUS_TASKS} />
+          <TodaysFocus />
         </Box>
       </Box>
 
