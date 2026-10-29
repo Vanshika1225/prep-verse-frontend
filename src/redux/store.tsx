@@ -6,6 +6,7 @@ import { authApi } from "@/services/authApi";
 import { contestApi } from "@/services/contestsApi";
 import { dsaApi } from "@/services/dsaApi";
 import { randomPracticeApi } from "@/services/randomPracticeApi";
+import { roadmapApi } from "@/services/roadmapApi";
 import { studyPlannerApi } from "@/services/studyPlannerApi";
 
 export const store = configureStore({
@@ -18,6 +19,7 @@ export const store = configureStore({
     [randomPracticeApi.reducerPath]: randomPracticeApi.reducer,
     [contestApi.reducerPath]: contestApi.reducer,
     [studyPlannerApi.reducerPath]: studyPlannerApi.reducer,
+    [roadmapApi.reducerPath]: roadmapApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -26,6 +28,7 @@ export const store = configureStore({
       randomPracticeApi.middleware,
       contestApi.middleware,
       studyPlannerApi.middleware,
+      roadmapApi.middleware,
     ),
 });
 

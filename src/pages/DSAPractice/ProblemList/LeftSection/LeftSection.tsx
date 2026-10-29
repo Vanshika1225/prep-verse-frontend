@@ -58,11 +58,11 @@ const statusMap = (theme: Theme) => ({
 
   Attempted: {
     color: theme.palette.primary.main,
-    bg: theme.palette.secondary.light,
+    bg: theme.palette.primary.main100,
   },
   "Not Started": {
     color: theme.palette.black.secondary,
-    bg: theme.palette.secondary.light,
+    bg: theme.palette.primary.main100,
   },
   Review: {
     color: theme.palette.warning.main,

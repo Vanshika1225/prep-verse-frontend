@@ -16,17 +16,24 @@ const colors = {
     dark: "#5838E5",
     main100: "#F5F1FF",
     main200: "#d9cdfb",
+    main300: "#5023e740",
+    main400: "#431bc2",
+    main500: "#374151",
+    main600:"#292044",
+    main700:"#392278"
   },
 
   secondary: {
     main: "#A78BFA",
-    light: "#F5F1FF",
     main100: "#f1ebff",
+    main200: "#D1D5DB",
+    main300:"#C4B5FD"
   },
 
   success: {
     main: "#22C55E",
     light: "#DCFCE7",
+    main100: "#16A34A",
   },
 
   warning: {
@@ -41,6 +48,8 @@ const colors = {
     light: "#FEE2E2",
     main100: "#ffecec",
     main200: "#ffcaca",
+    main300: "#DC2626",
+    main400: "#B91C1C",
   },
 
   sidebar: {
@@ -57,16 +66,23 @@ const colors = {
     main200: "#E4D7FF",
     main300: "#FAFAFB",
     main400: "#CBD5E1",
+    main500: "#F3F4F6",
+    // main600:"#29243B"
   },
 
   black: {
     main: "#111827",
     main100: "#191a29",
     secondary: "#6B7280",
+    main200: "#4B5563",
+    main300: "#F9FAFB",
+    main400:"#1F2937"
   },
 
   border: {
     main: "#E5E7EB",
+    main100: "#E9E7F2",
+    main200:"#9CA3AF"
   },
 
   appText: {
