@@ -317,6 +317,9 @@ const ContestSidebar = () => {
     highestRatingDate: null,
   };
 
+  const latestRatingChange = ratings.latestRatingChange;
+  const highestRatingDate = ratings.highestRatingDate;
+
   const activity = data?.data?.activity ?? [];
 
   const Card = { ...card, p: "16px" };
@@ -396,9 +399,9 @@ const ContestSidebar = () => {
             value={ratings.contestRating ?? "-"}
             loading={isLoading}
             footer={
-              ratings.latestRatingChange !== null &&
-              ratings.latestRatingChange !== undefined ? (
-                <Delta value={ratings.latestRatingChange} />
+              latestRatingChange !== null &&
+              latestRatingChange !== undefined ? (
+                <Delta value={latestRatingChange} />
               ) : undefined
             }
           />
@@ -414,15 +417,14 @@ const ContestSidebar = () => {
             value={ratings.highestRating ?? "-"}
             loading={isLoading}
             footer={
-              ratings.highestRatingDate ? (
+              highestRatingDate ? (
                 <Typography
                   sx={{
                     fontSize: 11.5,
                     color: theme.palette.appText.muted,
                   }}
                 >
-                  {ratings.highestRatingDate &&
-                    formatDate(ratings.highestRatingDate, false)}
+                  {formatDate(highestRatingDate, false)}
                 </Typography>
               ) : undefined
             }
