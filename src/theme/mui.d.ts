@@ -5,6 +5,9 @@ declare module "@mui/material/styles" {
     black: {
       main: string;
       main100: string;
+      main200: string;
+      main300: string;
+      main400: string;
       secondary: string;
     };
 
@@ -15,6 +18,7 @@ declare module "@mui/material/styles" {
       main200: string;
       main300: string;
       main400: string;
+      main500: string;
     };
 
     sidebar: {
@@ -26,6 +30,8 @@ declare module "@mui/material/styles" {
 
     border: {
       main: string;
+      main100: string;
+      main200: string;
     };
 
     appText: {
@@ -40,6 +46,9 @@ declare module "@mui/material/styles" {
     black?: {
       main: string;
       main100: string;
+      main200: string;
+      main300: string;
+      main400: string;
       secondary: string;
     };
 
@@ -50,6 +59,7 @@ declare module "@mui/material/styles" {
       main200: string;
       main300: string;
       main400: string;
+      main500: string;
     };
 
     sidebar?: {
@@ -61,6 +71,8 @@ declare module "@mui/material/styles" {
 
     border?: {
       main: string;
+      main100: string;
+      main200: string;
     };
 
     appText?: {
@@ -71,17 +83,28 @@ declare module "@mui/material/styles" {
     };
   }
 
+  // Supports custom shades like primary.main400,
+  // secondary.main300, success.main100, etc.
   interface PaletteColor {
     main100?: string;
     main200?: string;
+    main300?: string;
+    main400?: string;
+    main500?: string;
+    main600?: string;
+    main700?: string;
   }
 
   interface SimplePaletteColorOptions {
     main100?: string;
     main200?: string;
+    main300?: string;
+    main400?: string;
+    main500?: string;
+    main600?: string;
+    main700?: string;
   }
-}
-declare module "@mui/material/styles" {
+
   interface TypographyVariants {
     "h1-bold": React.CSSProperties;
     "h1-medium": React.CSSProperties;
