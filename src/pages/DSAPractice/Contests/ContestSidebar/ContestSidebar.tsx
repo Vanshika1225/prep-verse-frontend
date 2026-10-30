@@ -421,7 +421,8 @@ const ContestSidebar = () => {
                     color: theme.palette.appText.muted,
                   }}
                 >
-                  {formatDate(ratings.highestRatingDate, false)}
+                  {ratings.highestRatingDate &&
+                    formatDate(ratings.highestRatingDate, false)}
                 </Typography>
               ) : undefined
             }
