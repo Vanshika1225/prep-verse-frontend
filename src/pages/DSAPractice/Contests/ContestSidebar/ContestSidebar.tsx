@@ -394,7 +394,7 @@ const ContestSidebar = () => {
                 sx={{ fontSize: 18, color: theme.palette.primary.main }}
               />
             }
-            iconBg={theme.palette.secondary.main100}
+            iconBg={theme.palette.secondary.main100 ?? ""}
             label="Contest Rating"
             value={ratings.contestRating ?? "-"}
             loading={isLoading}
@@ -412,7 +412,7 @@ const ContestSidebar = () => {
                 sx={{ fontSize: 18, color: theme.palette.warning.main }}
               />
             }
-            iconBg={theme.palette.secondary.main100}
+            iconBg={theme.palette.secondary.main100 ?? ""}
             label="Highest Rating"
             value={ratings.highestRating ?? "-"}
             loading={isLoading}

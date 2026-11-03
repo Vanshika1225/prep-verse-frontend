@@ -1,5 +1,5 @@
-import ArticleRoundedIcon from "@mui/icons-material/ArticleRounded";
-import BarChartRoundedIcon from "@mui/icons-material/BarChartRounded";
+// import ArticleRoundedIcon from "@mui/icons-material/ArticleRounded";
+// import BarChartRoundedIcon from "@mui/icons-material/BarChartRounded";
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
 import CodeRoundedIcon from "@mui/icons-material/CodeRounded";
@@ -7,21 +7,21 @@ import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import ExpandLessRoundedIcon from "@mui/icons-material/ExpandLessRounded";
 import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
-import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
+// import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import RouteRoundedIcon from "@mui/icons-material/RouteRounded";
 import WorkOutlineRoundedIcon from "@mui/icons-material/WorkOutlineRounded";
 import {
   Box,
-  Typography,
+  // Typography,
   List,
   ListItemButton,
   ListItemIcon,
   ListItemText,
   Collapse,
   Chip,
-  Card,
-  Button,
+  // Card,
+  // Button,
   useTheme,
   Drawer,
   IconButton,
@@ -32,7 +32,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import {
   badgeStyle,
-  CardStyle,
+  // CardStyle,
   menuItemStyle,
   practiceItemStyle,
   subMenuStyle,
@@ -70,20 +70,14 @@ const menuItems = [
     ],
   },
   {
+    text: "Roadmap",
+    icon: <RouteRoundedIcon />,
+    path: "/roadmap",
+  },
+  {
     text: "Study Planner",
     icon: <CalendarMonthRoundedIcon />,
     path: "/study-planner",
-  },
-  {
-    text: "Job Tracker",
-    icon: <WorkOutlineRoundedIcon />,
-    path: "/job-tracker",
-  },
-  {
-    text: "Job Openings",
-    icon: <WorkOutlineRoundedIcon />,
-    path: "/job-openings",
-    badge: true,
   },
   {
     text: "Notes & Docs",
@@ -91,25 +85,30 @@ const menuItems = [
     path: "/notes",
   },
   {
-    text: "Roadmap",
-    icon: <RouteRoundedIcon />,
-    path: "/roadmap",
+    text: "Job Openings",
+    icon: <WorkOutlineRoundedIcon />,
+    path: "/job-openings",
   },
   {
-    text: "Goals",
-    icon: <FlagOutlinedIcon />,
-    path: "/goals",
+    text: "Job Tracker",
+    icon: <WorkOutlineRoundedIcon />,
+    path: "/job-tracker",
   },
-  {
-    text: "Analytics",
-    icon: <BarChartRoundedIcon />,
-    path: "/analytics",
-  },
-  {
-    text: "Resume Builder",
-    icon: <ArticleRoundedIcon />,
-    path: "/resume-builder",
-  },
+  // {
+  //   text: "Goals",
+  //   icon: <FlagOutlinedIcon />,
+  //   path: "/goals",
+  // },
+  // {
+  //   text: "Analytics",
+  //   icon: <BarChartRoundedIcon />,
+  //   path: "/analytics",
+  // },
+  // {
+  //   text: "Resume Builder",
+  //   icon: <ArticleRoundedIcon />,
+  //   path: "/resume-builder",
+  // },
 ];
 
 const Sidebar = () => {
@@ -226,14 +225,13 @@ const Sidebar = () => {
                 text={item.text}
                 icon={item.icon}
                 active={pathname === item.path}
-                badge={item.badge ?? false}
                 onClick={() => handleNavigate(item.path)}
               />
             );
           })}
         </List>
 
-        <Card elevation={0} sx={CardStyle}>
+        {/* <Card elevation={0} sx={CardStyle}>
           <Typography variant="p-bold" sx={{ color: theme.palette.white.main }}>
             👑 Pro Plan
           </Typography>
@@ -259,7 +257,8 @@ const Sidebar = () => {
           >
             Upgrade Now
           </Button>
-        </Card>
+        </Card>  */}
+
       </Box>
     </>
   );
