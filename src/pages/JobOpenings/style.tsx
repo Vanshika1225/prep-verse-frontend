@@ -573,3 +573,19 @@ export const openingStyle = (theme: any) => ({
   whiteSpace: "nowrap",
   flexShrink: 0,
 });
+
+export const jobListingScroll = (theme: any) => ({
+  maxHeight: 900,
+  overflowY: "auto",
+  pr: 1,
+  "&::-webkit-scrollbar": {
+    width: "5px",
+  },
+  "&::-webkit-scrollbar-thumb": {
+    backgroundColor: theme.palette.secondary.main500,
+    borderRadius: "10px",
+  },
+  "&::-webkit-scrollbar-track": {
+    backgroundColor: "transparent",
+  },
+});

@@ -30,7 +30,8 @@ const colors = {
     main200: "#D1D5DB",
     main300:"#C4B5FD",
     main400:"#EFF6FF",
-    main500:"BFDBFE"
+    main500:"#BFDBFE",
+    main600:"#C5C5C5"
   },
 
   success: {

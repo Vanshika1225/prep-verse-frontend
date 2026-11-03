@@ -20,16 +20,18 @@ const TopCompaniesCard = ({
 
   return (
     <Box sx={sidebarCard}>
-      <Typography
-        variant="p-bold"
-        sx={{
-          color: theme.palette.black.main,
-          fontSize: 15,
-          mb: 2,
-        }}
-      >
-        Top Companies Hiring
-      </Typography>
+      <Box sx={{ mb: 2 }}>
+        <Typography
+          variant="p-bold"
+          sx={{
+            color: theme.palette.black.main,
+            fontSize: 15,
+            mb: 2,
+          }}
+        >
+          Top Companies Hiring
+        </Typography>
+      </Box>
 
       {companies.map((comp) => (
         <Box

@@ -185,7 +185,6 @@ export interface JobSidebarProps {
 export interface JobCardProps {
   job: JobItem;
   onApply: (job: JobItem) => void;
-  onSave?: (job: JobItem) => void;
 }
 
 export interface JobPaginationProps {

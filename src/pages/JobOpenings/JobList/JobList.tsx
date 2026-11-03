@@ -12,6 +12,7 @@ import {
 import JobCard from "../JobCard/JobCard";
 import {
   flexColumn,
+  jobListingScroll,
   paginationStyle,
   paginationWrapper,
   resultsMetaBar,
@@ -68,50 +69,54 @@ const JobList = ({
           </Select>
         </Box>
       </Box>
+      <Box sx={jobListingScroll}>
+        {isLoading && (
+          <Box>
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton
+                key={i}
+                variant="rounded"
+                height={100}
+                sx={{ mb: 2, borderRadius: "12px" }}
+              />
+            ))}
+          </Box>
+        )}
 
-      {isLoading && (
-        <Box>
-          {[1, 2, 3, 4].map((i) => (
-            <Skeleton
-              key={i}
-              variant="rounded"
-              height={100}
-              sx={{ mb: 2, borderRadius: "12px" }}
-            />
-          ))}
-        </Box>
-      )}
+        {!isLoading && jobs.length > 0 && (
+          <Box>
+            {jobs.map((job) => (
+              <JobCard key={job._id} job={job} onApply={onApply} />
+            ))}
+          </Box>
+        )}
 
-      {!isLoading && jobs.length > 0 && (
-        <Box>
-          {jobs.map((job) => (
-            <JobCard key={job._id} job={job} onApply={onApply} />
-          ))}
-        </Box>
-      )}
-
-      {!isLoading && jobs.length === 0 && (
-        <Box
-          sx={{
-            ...flexColumn,
-            textAlign: "center",
-            py: 8,
-            bgcolor: theme.palette.white.main,
-            borderRadius: "12px",
-            border: `1px solid ${theme.palette.border.main}`,
-          }}
-        >
-          <Typography variant="p-bold" sx={{ color: theme.palette.black.main }}>
-            No job openings match your criteria.
-          </Typography>
-          <Typography
-            variant="body-medium"
-            sx={{ color: theme.palette.black.secondary, mt: 1 }}
+        {!isLoading && jobs.length === 0 && (
+          <Box
+            sx={{
+              ...flexColumn,
+              textAlign: "center",
+              py: 8,
+              bgcolor: theme.palette.white.main,
+              borderRadius: "12px",
+              border: `1px solid ${theme.palette.border.main}`,
+            }}
           >
-            Try adjusting your filters or search keywords.
-          </Typography>
-        </Box>
-      )}
+            <Typography
+              variant="p-bold"
+              sx={{ color: theme.palette.black.main }}
+            >
+              No job openings match your criteria.
+            </Typography>
+            <Typography
+              variant="body-medium"
+              sx={{ color: theme.palette.black.secondary, mt: 1 }}
+            >
+              Try adjusting your filters or search keywords.
+            </Typography>
+          </Box>
+        )}
+      </Box>
 
       {pagination && pagination.totalPages > 1 && (
         <Box sx={paginationWrapper}>

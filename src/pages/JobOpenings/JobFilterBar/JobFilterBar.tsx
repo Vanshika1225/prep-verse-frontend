@@ -99,6 +99,16 @@ const JobFilterBar = ({
           displayEmpty
           value={filters.location}
           onChange={(e) => onChange({ location: e.target.value, page: 1 })}
+          MenuProps={{
+            slotProps: {
+              paper: {
+                sx: {
+                  maxHeight: 300,
+                  overflowY: "auto",
+                },
+              },
+            },
+          }}
           sx={selectDropdownStyle}
         >
           <MenuItem value="">All Locations</MenuItem>

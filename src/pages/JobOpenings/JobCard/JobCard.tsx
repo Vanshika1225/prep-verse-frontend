@@ -2,7 +2,6 @@ import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import WorkOutlineOutlinedIcon from "@mui/icons-material/WorkOutlineOutlined";
 import { Avatar, Box, Button, Typography, useTheme } from "@mui/material";
-import { useState } from "react";
 
 import {
   actionButtonsRow,
@@ -33,17 +32,11 @@ const formatSalary = (salary: JobItem["salary"]): string => {
   if (salary?.min && salary?.max) {
     return `₹${salary.min} - ${salary.max} LPA`;
   }
-  return "Salary Disclosed on Apply";
+  return "Not Disclosed";
 };
 
-const JobCard = ({ job, onApply, onSave }: JobCardProps) => {
+const JobCard = ({ job, onApply }: JobCardProps) => {
   const theme = useTheme();
-  const [isSaved, setIsSaved] = useState(Boolean(job.isSaved));
-
-  const handleSaveToggle = () => {
-    setIsSaved((prev) => !prev);
-    onSave?.(job);
-  };
 
   return (
     <Box sx={jobCardContainer}>
@@ -104,10 +97,10 @@ const JobCard = ({ job, onApply, onSave }: JobCardProps) => {
       <Box sx={jobCardRight}>
         <Box sx={jobCardRightInnerBox}>
           <Typography
-            variant="p-bold"
-            sx={{ color: theme.palette.black.main, fontWeight: 700 }}
+            variant="p-medium"
+            sx={{ color: theme.palette.black.main }}
           >
-            {formatSalary(job.salary)}
+            Salary: {formatSalary(job.salary)}
           </Typography>
 
           <Box sx={workModeBadge(theme, job.workMode)}>{job.workMode}</Box>
