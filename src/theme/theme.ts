@@ -20,14 +20,17 @@ const colors = {
     main400: "#431bc2",
     main500: "#374151",
     main600:"#292044",
-    main700:"#392278"
+    main700:"#392278",
+    main800:"#2563EB"
   },
 
   secondary: {
     main: "#A78BFA",
     main100: "#f1ebff",
     main200: "#D1D5DB",
-    main300:"#C4B5FD"
+    main300:"#C4B5FD",
+    main400:"#EFF6FF",
+    main500:"BFDBFE"
   },
 
   success: {

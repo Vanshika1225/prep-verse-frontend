@@ -2,6 +2,7 @@ import authReducer from "@redux/slices/authSlice";
 import toastReducer from "@redux/slices/toastSlice";
 import { configureStore } from "@reduxjs/toolkit";
 
+import { jobOpeningsApi } from "@/services/JobOpeningsApi";
 import { authApi } from "@/services/authApi";
 import { contestApi } from "@/services/contestsApi";
 import { dsaApi } from "@/services/dsaApi";
@@ -20,6 +21,7 @@ export const store = configureStore({
     [contestApi.reducerPath]: contestApi.reducer,
     [studyPlannerApi.reducerPath]: studyPlannerApi.reducer,
     [roadmapApi.reducerPath]: roadmapApi.reducer,
+    [jobOpeningsApi.reducerPath]:jobOpeningsApi.reducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -29,6 +31,7 @@ export const store = configureStore({
       contestApi.middleware,
       studyPlannerApi.middleware,
       roadmapApi.middleware,
+      jobOpeningsApi.middleware
     ),
 });
 
