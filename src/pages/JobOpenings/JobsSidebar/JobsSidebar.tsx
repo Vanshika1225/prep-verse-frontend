@@ -10,24 +10,37 @@ import TopCompaniesCard from "./TopCompaniesCard/TopCompaniesCard";
 const JobSidebar = ({
   recommendedJobs,
   topCompanies,
+  isLoading,
   popularSkills,
   selectedSkill,
   onSelectSkill,
   onSelectCompany,
   onSelectJob,
   onGoToTracker,
+  isTopCompaniesLoading,
+  isPopularSkillCardLoading,
 }: JobSidebarProps) => {
   return (
     <Box sx={{ width: "100%" }}>
-      <RecommendedJobsCard jobs={recommendedJobs} onSelectJob={onSelectJob} />
+      <RecommendedJobsCard
+        jobs={recommendedJobs}
+        {...(isLoading === undefined ? {} : { isLoading })}
+        onSelectJob={onSelectJob}
+      />
       <TopCompaniesCard
         companies={topCompanies}
         onSelectCompany={onSelectCompany}
+        {...(isTopCompaniesLoading === undefined
+          ? {}
+          : { isLoading: isTopCompaniesLoading })}
       />
       <PopularSkillsCard
         skills={popularSkills}
         {...(selectedSkill === undefined ? {} : { selectedSkill })}
         onSelectSkill={onSelectSkill}
+        {...(isPopularSkillCardLoading === undefined
+          ? {}
+          : { isLoading: isPopularSkillCardLoading })}
       />
       <JobTrackerBanner
         {...(onGoToTracker === undefined ? {} : { onGoToTracker })}

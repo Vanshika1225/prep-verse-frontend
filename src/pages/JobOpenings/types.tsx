@@ -175,11 +175,14 @@ export interface JobSidebarProps {
   recommendedJobs: JobItem[];
   topCompanies: TopCompanyItem[];
   popularSkills: PopularSkillItem[];
+  isLoading?: boolean;
   selectedSkill?: string;
   onSelectSkill: (skill: string) => void;
   onSelectCompany: (company: string) => void;
   onSelectJob: (job: JobItem) => void;
   onGoToTracker?: () => void;
+  isTopCompaniesLoading?: boolean;
+  isPopularSkillCardLoading?: boolean;
 }
 
 export interface JobCardProps {
@@ -197,14 +200,17 @@ export interface PopularSkillsCardProps {
   skills: PopularSkillItem[];
   selectedSkill?: string;
   onSelectSkill: (skill: string) => void;
+  isLoading?: boolean;
 }
 
 export interface RecommendedJobsCardProps {
   jobs: JobItem[];
+  isLoading?: boolean;
   onSelectJob?: (job: JobItem) => void;
 }
 
 export interface TopCompaniesCardProps {
   companies: TopCompanyItem[];
+  isLoading?: boolean;
   onSelectCompany?: (name: string) => void;
 }

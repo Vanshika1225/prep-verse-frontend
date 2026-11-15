@@ -41,9 +41,11 @@ const JobOpenings = () => {
   });
 
   const { data: filtersData } = useGetFiltersQuery();
-  const { data: recommendedData } = useGetRecommendedJobsQuery();
-  const { data: topCompaniesData } = useGetTopCompaniesQuery();
-  const { data: popularSkillsData } = useGetPopularSkillsQuery();
+  const { data: recommendedData, isLoading } = useGetRecommendedJobsQuery();
+  const { data: topCompaniesData, isLoading: isTopCompaniesLoading } =
+    useGetTopCompaniesQuery();
+  const { data: popularSkillsData, isLoading: isPopularSkillCardLoading } =
+    useGetPopularSkillsQuery();
 
   const [applyJob] = useApplyJobMutation();
   const [confirmApply, { isLoading: isConfirming }] = useConfirmApplyMutation();
@@ -144,6 +146,9 @@ const JobOpenings = () => {
 
         <JobSidebar
           recommendedJobs={recommendedJobs}
+          isLoading={isLoading}
+          isTopCompaniesLoading={isTopCompaniesLoading}
+          isPopularSkillCardLoading={isPopularSkillCardLoading}
           topCompanies={topCompanies}
           popularSkills={popularSkills}
           selectedSkill={filters.skill ?? ""}
