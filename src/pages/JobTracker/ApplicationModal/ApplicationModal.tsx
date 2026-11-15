@@ -414,7 +414,7 @@ export const ApplicationModal = ({
           <Box
             sx={applicationModalStagePanel(
               theme.palette.secondary.main,
-              theme.palette.secondary.main100,
+              theme.palette.secondary.main100 ?? theme.palette.secondary.light,
             )}
           >
             <Box sx={applicationModalStageHeader}>
