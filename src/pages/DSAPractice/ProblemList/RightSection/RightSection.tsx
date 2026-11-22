@@ -28,6 +28,7 @@ import type {
 import PieChart from "@/components/ChartComponent/PieChart";
 import ReusableModal from "@/components/ModalBox/ModalBox";
 import NoDataFound from "@/components/NoDataFound/NoDataFound";
+import { useStreak } from "@/hooks/useStreak";
 import {
   useGetAllProblemOverviewCountQuery,
   useGetAllProblemrecentProblemsQuery,
@@ -37,9 +38,13 @@ import theme from "@/theme/theme";
 
 const ProgressOverview = () => {
   const theme = useTheme();
+
+  const { currentStreak, isLoading: streakLoading } = useStreak();
+
   const { data: OverviewCount, isLoading } = useGetAllProblemOverviewCountQuery(
     {},
   );
+
   const overviewData = OverviewCount as ProblemOverviewResponse | undefined;
 
   const stats = [
@@ -206,15 +211,13 @@ const ProgressOverview = () => {
             />
 
             <Box>
-              <Typography
-                variant="body-bold"
-                sx={{
-                  display: "block",
-                  mb: 0.3,
-                }}
-              >
-                12 Day Streak
-              </Typography>
+              {streakLoading ? (
+                <Skeleton variant="text" width={100} height={24} />
+              ) : (
+                <Typography variant="body-bold">
+                  {currentStreak} Day Streak
+                </Typography>
+              )}
 
               <Typography
                 variant="caption"

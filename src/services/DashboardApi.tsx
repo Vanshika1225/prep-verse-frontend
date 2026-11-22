@@ -22,6 +22,14 @@ interface RefreshTokenResponse {
   data: { accessToken: string };
 }
 
+export interface StreakData {
+  currentStreak: number;
+  longestStreak: number;
+  activeToday: boolean;
+  lastActiveDate: string | null;
+  todaySolved: number;
+}
+
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: apiUrl,
   credentials: "include",
@@ -62,12 +70,10 @@ const baseQueryWithReauth: BaseQueryFn<
 export const dashboardApi = createApi({
   reducerPath: "dashboardApi",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["DashboardSummary", "Recommendations", "Progress"],
 
   endpoints: (builder) => ({
     getDashboardSummary: builder.query<ApiResponse<DashboardSummary>, void>({
       query: () => ({ url: "/api/dashboard/summary", method: "GET" }),
-      providesTags: ["DashboardSummary"],
       onQueryStarted: onQueryStartedDefault,
     }),
 
@@ -87,6 +93,11 @@ export const dashboardApi = createApi({
       }),
       onQueryStarted: onQueryStartedDefault,
     }),
+
+    getStreak: builder.query<ApiResponse<StreakData>, void>({
+      query: () => ({ url: "/api/users/streak", method: "GET" }),
+      onQueryStarted: onQueryStartedDefault,
+    }),
   }),
 });
 
@@ -94,4 +105,5 @@ export const {
   useGetDashboardSummaryQuery,
   useGetDisciplineScoreQuery,
   useGetWeeklyActivityQuery,
+  useGetStreakQuery,
 } = dashboardApi;

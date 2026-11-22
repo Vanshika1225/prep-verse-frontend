@@ -29,6 +29,7 @@ import type { CardProps, JobCardItem, LinkTextProps } from "./types";
 
 import NoDataFound from "@/components/NoDataFound/NoDataFound";
 import SelectComponent from "@/components/SelectComponent";
+import { useStreak } from "@/hooks/useStreak";
 import {
   useGetDashboardSummaryQuery,
   useGetDisciplineScoreQuery,
@@ -871,6 +872,8 @@ const Dashboard = () => {
   const { data } = useGetDashboardSummaryQuery();
   const user = data?.data.user;
 
+  const { currentStreak, isLoading: streakLoading } = useStreak();
+
   return (
     <Box>
       <Box sx={styles.headerRow}>
@@ -885,11 +888,15 @@ const Dashboard = () => {
         </Box>
 
         <Box sx={styles.headerActions}>
-          <Chip
-            icon={<LocalFireDepartmentRoundedIcon />}
-            label={`${user?.streak ?? 0} Day Streak`}
-            sx={styles.streakChip(theme)}
-          />
+          {streakLoading ? (
+            <Skeleton variant="rounded" width={110} height={32} />
+          ) : (
+            <Chip
+              icon={<LocalFireDepartmentRoundedIcon />}
+              label={`${currentStreak} Day Streak`}
+              sx={styles.streakChip(theme)}
+            />
+          )}
         </Box>
       </Box>
 

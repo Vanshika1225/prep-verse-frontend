@@ -18,12 +18,14 @@ import {
   plannerStatWRapper,
 } from "../style";
 
+import { useStreak } from "@/hooks/useStreak";
 import { useGetStudyPlannerStatsQuery } from "@/services/studyPlannerApi";
 
 const PlannerStats = () => {
   const theme = useTheme();
 
   const { data: response, isLoading } = useGetStudyPlannerStatsQuery();
+  const { currentStreak, isLoading: streakLoading } = useStreak();
 
   const statsData = response?.data;
 
@@ -37,9 +39,6 @@ const PlannerStats = () => {
 
   const tasksCompletedCount = tasksCompleted?.count ?? 0;
   const vsLastWeek = tasksCompleted?.vsLastWeek ?? 0;
-
-  // eslint-disable-next-line prefer-const
-  let currentStreak = 0;
 
   const stats = [
     {
@@ -140,7 +139,7 @@ const PlannerStats = () => {
             <Typography variant="body-medium">{title}</Typography>
           </Box>
 
-          {isLoading ? (
+          {isLoading || (title === "Current Streak" && streakLoading) ? (
             <Skeleton variant="text" width="45%" height={36} />
           ) : (
             <Typography variant="h6-bold">{value}</Typography>
