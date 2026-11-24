@@ -255,12 +255,12 @@ const StatsRow = () => {
   const { data, isLoading } = useGetDashboardSummaryQuery();
   const stats = data?.data.stats ?? [];
 
-  const colors = [
+  const colors: string[] = [
     theme.palette.primary.main,
     theme.palette.primary.light,
     theme.palette.success.main,
     theme.palette.warning.main,
-    theme.palette.primary.main800,
+    theme.palette.primary.main800 ?? theme.palette.primary.main,
   ];
 
   if (isLoading) return <StatsSkeleton />;
@@ -290,7 +290,9 @@ const StatsRow = () => {
                 <Line
                   type="monotone"
                   dataKey="v"
-                  stroke={colors[i % colors.length]}
+                  stroke={
+                    colors[i % colors.length] ?? theme.palette.primary.main
+                  }
                   strokeWidth={2}
                   dot={false}
                 />
