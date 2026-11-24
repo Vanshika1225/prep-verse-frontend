@@ -93,6 +93,7 @@ declare module "@mui/material/styles" {
     main500?: string;
     main600?: string;
     main700?: string;
+    main800?: string;
   }
 
   interface SimplePaletteColorOptions {
@@ -103,6 +104,7 @@ declare module "@mui/material/styles" {
     main500?: string;
     main600?: string;
     main700?: string;
+    main800?: string;
   }
 
   interface TypographyVariants {
