@@ -96,13 +96,15 @@ export const platforms: PlatformConfig[] = [
     key: "codeforcesHandle",
     label: "Codeforces",
     baseUrl: "https://codeforces.com/profile/",
-    getColor: (theme) => theme.palette.primary.main800,
+    getColor: (theme) =>
+      theme.palette.primary.main800 ?? theme.palette.primary.main,
   },
   {
     key: "codechefHandle",
     label: "CodeChef",
     baseUrl: "https://www.codechef.com/users/",
-    getColor: (theme) => theme.palette.warning.main200,
+    getColor: (theme) =>
+      theme.palette.warning.main200 ?? theme.palette.warning.main,
   },
 ];
 
