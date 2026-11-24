@@ -8,6 +8,7 @@ import { authApi } from "@/services/authApi";
 import { contestApi } from "@/services/contestsApi";
 import { dsaApi } from "@/services/dsaApi";
 import { jobTrackerApi } from "@/services/jobTrackerApi";
+import { profileApi } from "@/services/profileApi";
 import { randomPracticeApi } from "@/services/randomPracticeApi";
 import { roadmapApi } from "@/services/roadmapApi";
 import { studyPlannerApi } from "@/services/studyPlannerApi";
@@ -26,6 +27,7 @@ export const store = configureStore({
     [jobOpeningsApi.reducerPath]: jobOpeningsApi.reducer,
     [jobTrackerApi.reducerPath]: jobTrackerApi.reducer,
     [dashboardApi.reducerPath]: dashboardApi.reducer,
+    [profileApi.reducerPath]: profileApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -38,6 +40,7 @@ export const store = configureStore({
       jobOpeningsApi.middleware,
       jobTrackerApi.middleware,
       dashboardApi.middleware,
+      profileApi.middleware,
     ),
 });
 

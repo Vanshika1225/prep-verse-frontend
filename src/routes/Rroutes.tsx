@@ -23,6 +23,7 @@ import Home from "@/pages/Home/Home";
 import JobOpenings from "@/pages/JobOpenings/JobOpenings";
 import JobTracker from "@/pages/JobTracker/JobTracker";
 import NotesAndDocs from "@/pages/NotesAndDocs/NotesAndDocs";
+import Profile from "@/pages/Profile/Profile";
 import ResumeBuilder from "@/pages/ResumeBuilder/ResumeBuilder";
 import Roadmap from "@/pages/Roadmap/Roadmap";
 import StudyPlanner from "@/pages/StudyPlanner/StudyPlanner";
@@ -53,6 +54,7 @@ export const router = createBrowserRouter([
             path: "/dashboard",
             element: <Dashboard />,
           },
+          { path: "/profile", element: <Profile /> },
           {
             path: "/study-planner",
             element: <StudyPlanner />,
