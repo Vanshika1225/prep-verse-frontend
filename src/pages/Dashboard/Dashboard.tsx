@@ -3,7 +3,6 @@ import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import CalendarTodayRoundedIcon from "@mui/icons-material/CalendarTodayRounded";
 import CodeRoundedIcon from "@mui/icons-material/CodeRounded";
 import EventNoteRoundedIcon from "@mui/icons-material/EventNoteRounded";
-import LocalFireDepartmentRoundedIcon from "@mui/icons-material/LocalFireDepartmentRounded";
 import MapRoundedIcon from "@mui/icons-material/MapRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import WorkOutlineRoundedIcon from "@mui/icons-material/WorkOutlineRounded";
@@ -29,7 +28,6 @@ import type { CardProps, JobCardItem, LinkTextProps } from "./types";
 
 import NoDataFound from "@/components/NoDataFound/NoDataFound";
 import SelectComponent from "@/components/SelectComponent";
-import { useStreak } from "@/hooks/useStreak";
 import {
   useGetDashboardSummaryQuery,
   useGetDisciplineScoreQuery,
@@ -257,12 +255,12 @@ const StatsRow = () => {
   const { data, isLoading } = useGetDashboardSummaryQuery();
   const stats = data?.data.stats ?? [];
 
-  const colors = [
+  const colors: string[] = [
     theme.palette.primary.main,
     theme.palette.primary.light,
     theme.palette.success.main,
     theme.palette.warning.main,
-    theme.palette.primary.main800,
+    theme.palette.primary.main800 ?? theme.palette.primary.main,
   ];
 
   if (isLoading) return <StatsSkeleton />;
@@ -292,7 +290,9 @@ const StatsRow = () => {
                 <Line
                   type="monotone"
                   dataKey="v"
-                  stroke={colors[i % colors.length]}
+                  stroke={
+                    colors[i % colors.length] ?? theme.palette.primary.main
+                  }
                   strokeWidth={2}
                   dot={false}
                 />
@@ -872,8 +872,6 @@ const Dashboard = () => {
   const { data } = useGetDashboardSummaryQuery();
   const user = data?.data.user;
 
-  const { currentStreak, isLoading: streakLoading } = useStreak();
-
   return (
     <Box>
       <Box sx={styles.headerRow}>
@@ -885,18 +883,6 @@ const Dashboard = () => {
           <Typography variant="body-medium" sx={styles.mutedText(theme)}>
             Let's keep building your dream career.
           </Typography>
-        </Box>
-
-        <Box sx={styles.headerActions}>
-          {streakLoading ? (
-            <Skeleton variant="rounded" width={110} height={32} />
-          ) : (
-            <Chip
-              icon={<LocalFireDepartmentRoundedIcon />}
-              label={`${currentStreak} Day Streak`}
-              sx={styles.streakChip(theme)}
-            />
-          )}
         </Box>
       </Box>
 

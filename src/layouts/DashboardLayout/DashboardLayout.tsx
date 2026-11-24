@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 
 import Sidebar from "../Sidebar/Sidebar";
 
+import TopBar from "@/components/TopBar/TopBar";
 import { drawerWidth } from "@/constants/constants";
 
 const DashboardLayout = () => {
@@ -19,6 +20,7 @@ const DashboardLayout = () => {
           p: 3,
         }}
       >
+        <TopBar />
         <Outlet />
       </Box>
     </Box>

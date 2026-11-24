@@ -8,3 +8,12 @@ export const formatRelativeTime = (dateStr: string): string => {
   const diffDays = Math.floor(diffHours / 24);
   return diffDays === 1 ? "1 day ago" : `${diffDays} days ago`;
 };
+
+export const getInitials = (name: string) =>
+  name
+    .split(" ")
+    .filter(Boolean)
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
