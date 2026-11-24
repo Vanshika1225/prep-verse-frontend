@@ -26,28 +26,11 @@ import {
 import { DAILY_GOAL, type Difficulty, type RecentActivityItem } from "../types";
 
 import NoDataFound from "@/components/NoDataFound/NoDataFound";
+import { useStreak } from "@/hooks/useStreak";
 import { useGetAllProblemsQuery } from "@/services/dsaApi";
 import { useGetRandomPracticeRecentActivityQuery } from "@/services/randomPracticeApi";
 
 const toDayKey = (value: string) => new Date(value).toDateString();
-
-const getSolvedStreak = (items: RecentActivityItem[]) => {
-  const days = new Set(
-    items
-      .filter((item) => item.status === "Solved")
-      .map((item) => toDayKey(item.updatedAt)),
-  );
-
-  const cursor = new Date();
-  let streak = 0;
-
-  while (days.has(cursor.toDateString())) {
-    streak += 1;
-    cursor.setDate(cursor.getDate() - 1);
-  }
-
-  return streak;
-};
 
 const formatWhen = (value: string) => {
   const diffDays = Math.floor(
@@ -69,6 +52,8 @@ const TodaysProgress = () => {
   const theme = useTheme();
   const styles = rightSectionStyles(theme);
 
+  const { currentStreak, isLoading: streakLoading } = useStreak();
+
   const { data, isLoading } = useGetRandomPracticeRecentActivityQuery();
   const activity = useMemo(() => data?.data ?? [], [data]);
 
@@ -85,7 +70,6 @@ const TodaysProgress = () => {
     return {
       solvedToday,
       accuracy: attempted > 0 ? Math.round((solved / attempted) * 100) : 0,
-      streak: getSolvedStreak(activity),
     };
   }, [activity]);
 
@@ -168,7 +152,11 @@ const TodaysProgress = () => {
                   variant="body-bold"
                   sx={{ color: "inherit", fontWeight: 600 }}
                 >
-                  {summary.streak} days
+                  {streakLoading ? (
+                    <Skeleton variant="text" width={55} height={22} />
+                  ) : (
+                    `${currentStreak} days`
+                  )}{" "}
                 </Typography>
               </Box>
             </Box>
